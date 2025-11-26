@@ -21,6 +21,104 @@
     .muted{color:#94a3b8}
     .sticky-top-blur{backdrop-filter:saturate(180%) blur(8px);background:rgba(2,6,23,.7)}
     .table-sm td,.table-sm th{padding:.5rem .6rem}
+     .knockout-card{
+    background: radial-gradient(circle at top, rgba(56,189,248,.16), transparent 55%),
+                radial-gradient(circle at bottom, rgba(129,140,248,.18), transparent 60%),
+                #020617;
+    border:1px solid #1f2937;
+    box-shadow:0 18px 45px rgba(15,23,42,.85);
+    position:relative;
+    overflow:hidden;
+  }
+  .knockout-card::after{
+    content:"";
+    position:absolute;
+    inset:0;
+    background:linear-gradient(135deg,rgba(56,189,248,.18),transparent,rgba(96,165,250,.15));
+    opacity:.25;
+    mix-blend-mode:screen;
+    pointer-events:none;
+  }
+  .knockout-title{
+    letter-spacing:.08em;
+    font-size:.8rem;
+    text-transform:uppercase;
+  }
+  .badge-lightning{
+    border-radius:999px;
+    padding:.2rem .7rem;
+    border:1px solid #1f2937;
+    background:#020617;
+    font-size:.75rem;
+    display:inline-flex;
+    align-items:center;
+    gap:.35rem;
+  }
+  .badge-lightning span{
+    font-size:.9rem;
+  }
+
+  .match-card{
+    position:relative;
+    background:#020617;
+    border-radius:1rem;
+    padding:.8rem 1rem;
+    border:1px solid #1f2937;
+    overflow:hidden;
+  }
+  .match-card::before{
+    content:"";
+    position:absolute;
+    inset:-40%;
+    background:radial-gradient(circle,rgba(56,189,248,.18),transparent 60%);
+    opacity:0;
+    transition:.35s ease;
+  }
+  .match-card:hover::before{
+    opacity:1;
+  }
+  .match-teams{
+    position:relative;
+    z-index:1;
+  }
+  .seed-pill{
+    border-radius:999px;
+    border:1px solid #1f2937;
+    font-size:.7rem;
+    padding:.1rem .45rem;
+    min-width:2rem;
+    text-align:center;
+    background:#020617;
+    color:#9ca3af;
+  }
+  .team-name{
+    font-weight:600;
+    font-size:.95rem;
+  }
+  .vs-badge{
+    width:2.1rem;
+    height:2.1rem;
+    border-radius:999px;
+    border:1px solid #1e293b;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:.7rem;
+    font-weight:700;
+    text-transform:uppercase;
+    background:radial-gradient(circle,rgba(15,23,42,1),#020617);
+    box-shadow:0 0 0 1px rgba(30,64,175,.7);
+  }
+  .match-meta{
+    font-size:.75rem;
+  }
+  .tag-round{
+    border-radius:999px;
+    border:1px dashed #334155;
+    padding:.15rem .65rem;
+    font-size:.7rem;
+    color:#93c5fd;
+  }
   </style>
 </head>
 <body>
@@ -36,6 +134,122 @@
 </nav>
 
   <main class="container my-4">
+
+     <!-- ربع النهائي – أعلى الصفحة -->
+  <section class="mb-4">
+    <div class="card knockout-card">
+      <div class="card-body position-relative">
+        <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
+          <div>
+            <div class="knockout-title text-uppercase text-muted mb-1">Knockout Stage</div>
+            <h4 class="m-0">ربع النهائي – دوري أبطال النور</h4>
+          </div>
+          <div class="d-flex flex-column align-items-end gap-1">
+            <span class="badge-lightning">
+              <span>⚡</span> مباراة واحدة في الأسبوع
+            </span>
+            <span class="tag-round">1 ضد 8 ▪ 2 ضد 7 ▪ 3 ضد 6 ▪ 4 ضد 5</span>
+          </div>
+        </div>
+
+        <div class="row g-3">
+          <!-- العمود الأيمن: 1 ضد 8 & 2 ضد 7 -->
+          <div class="col-12 col-lg-6 d-flex flex-column gap-3">
+            <!-- مباراة 1: 1 ضد 8 -->
+            <div class="match-card">
+              <div class="match-teams">
+                <div class="d-flex justify-content-between align-items-center mb-1">
+                  <div class="d-flex align-items-center gap-2">
+                    <span class="seed-pill">1</span>
+                    <span class="team-name">الغزالي-ابو بكر</span>
+                  </div>
+                  <div class="vs-badge">VS</div>
+                  <div class="d-flex align-items-center gap-2 flex-row-reverse">
+                    <span class="seed-pill">8</span>
+                    <span class="team-name">الفرابي</span>
+                  </div>
+                </div>
+                <div class="d-flex justify-content-between align-items-center mt-1 match-meta">
+                  <span class="muted">الأحد 30/11/2025</span>
+                  <span class="text-warning fw-bold">-</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- مباراة 2: 2 ضد 7 -->
+            <div class="match-card">
+              <div class="match-teams">
+                <div class="d-flex justify-content-between align-items-center mb-1">
+                  <div class="d-flex align-items-center gap-2">
+                    <span class="seed-pill">2</span>
+                    <span class="team-name">الجوري</span>
+                  </div>
+                  <div class="vs-badge">VS</div>
+                  <div class="d-flex align-items-center gap-2 flex-row-reverse">
+                    <span class="seed-pill">7</span>
+                    <span class="team-name">الزنبق</span>
+                  </div>
+                </div>
+                <div class="d-flex justify-content-between align-items-center mt-1 match-meta">
+                  <span class="muted">الأحد 07/12/2025</span>
+                  <span class="text-warning fw-bold">-</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- العمود الأيسر: 3 ضد 6 & 4 ضد 5 -->
+          <div class="col-12 col-lg-6 d-flex flex-column gap-3">
+            <!-- مباراة 3: 3 ضد 6 -->
+            <div class="match-card">
+              <div class="match-teams">
+                <div class="d-flex justify-content-between align-items-center mb-1">
+                  <div class="d-flex align-items-center gap-2">
+                    <span class="seed-pill">3</span>
+                    <span class="team-name">الاحسان</span>
+                  </div>
+                  <div class="vs-badge">VS</div>
+                  <div class="d-flex align-items-center gap-2 flex-row-reverse">
+                    <span class="seed-pill">6</span>
+                    <span class="team-name">الريحان</span>
+                  </div>
+                </div>
+                <div class="d-flex justify-content-between align-items-center mt-1 match-meta">
+                  <span class="muted">الأحد 14/12/2025</span>
+                  <span class="text-warning fw-bold">-</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- مباراة 4: 4 ضد 5 -->
+            <div class="match-card">
+              <div class="match-teams">
+                <div class="d-flex justify-content-between align-items-center mb-1">
+                  <div class="d-flex align-items-center gap-2">
+                    <span class="seed-pill">4</span>
+                    <span class="team-name">القرنفل</span>
+                  </div>
+                  <div class="vs-badge">VS</div>
+                  <div class="d-flex align-items-center gap-2 flex-row-reverse">
+                    <span class="seed-pill">5</span>
+                    <span class="team-name">السوسن</span>
+                  </div>
+                </div>
+                <div class="d-flex justify-content-between align-items-center mt-1 match-meta">
+                  <span class="muted">الأحد 21/12/2025</span>
+                  <span class="text-warning fw-bold">-</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="text-center mt-3 muted small">
+          الفِرق الفائزة تتأهل إلى نصف النهائي 🔜
+        </div>
+      </div>
+    </div>
+  </section>
 
     <div class="row g-4">
 
@@ -253,6 +467,7 @@
   </main>
 </body>
 </html>
+
 
 
 
