@@ -1,0 +1,28 @@
+{
+  "name": "دوري أبطال النور 2026 - مدرسة النور الإعدادية رهط",
+  "short_name": "دوري النور",
+  "description": "جدول مباريات وترتيب دوري كرة القدم المدرسي في مدرسة النور الإعدادية رهط",
+  "lang": "ar",
+  "dir": "rtl",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0B132B",
+  "theme_color": "#0B132B",
+  "icons": [
+    {
+      "src": "static/alnoor_logo.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "static/alnoor_logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
+

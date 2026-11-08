@@ -3,609 +3,2649 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>دوري كرة القدم المدرسي </title>
+  <meta name="theme-color" content="#0B132B" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="دوري النور" />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="apple-touch-icon" href="static/alnoor_logo.png" />
+  <title>دوري أبطال النور 2026 - مدرسة النور الإعدادية رهط</title>
 
-  <!-- Bootstrap 5 (للتنسيق السريع) -->
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!--
+    Design Decisions Record (R-31):
+    - Design Read: school football tournament scoreboard & match center for middle-school students (Al-Noor Junior High, Rahat), in a broadcast-pitch scoreboard visual language, dial ENERGY 2 / RHYTHM 2 / MOTION 1.
+    - Palette & Dark Theme (R-01, R-21, R-29): Derived from static/alnoor_logo.png: Al-Noor Navy (#0B132B / #131F3E) for floodlight scoreboard base (fixed dark theme per owner instruction), Pitch Green (#4ADE80 / #22C55E) for top-2 qualification & pitch identity, and Al-Noor Sun Gold (#FBBF24) as the single focal accent. Semantic referee card colors (#FEF08A/#713F12 yellow, #FEE2E2/#991B1B red) for disciplinary tables.
+    - Typography (R-06): 'Cairo' & 'Tajawal' chosen for geometric Arabic sports broadcast legibility on mobile screens, paired with tabular numerals (tabular-nums) for aligned scores, dates, and standings columns.
+    - Layout & Rhythm (R-05, R-14): 5-section varied rhythm (RHYTHM 2): (1) Asymmetric tournament status banner, (2) 4-group standings grid with top-2 qualification markers, (3) Interactive filterable match schedule (mobile card list / desktop table), (4) 4-category player statistics & discipline center (Goals, Assists, Yellow Cards, Red Cards), (5) Quarter-Final to Final knockout bracket & 2-panel school rules board.
+    - Mobile Reflow (R-03): 3-state responsive layout (phone <640px, tablet 640px-1023px, desktop >=1024px); schedule rows reflow into touch-friendly match cards on mobile with zero horizontal overflow and >=44px tap targets.
+  -->
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@600;700;800&family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
 
   <style>
-    /* ألوان داكنة بسيطة */
-    body{background:#0f172a;color:#e2e8f0}
-    a{color:#93c5fd}
-    .brand{font-weight:800;letter-spacing:.5px}
-    .card{background:#111827;border:1px solid #1f2937}
-    .table{--bs-table-bg:transparent;--bs-table-color:#e5e7eb}
-    .table thead th{color:#93c5fd;border-bottom-color:#334155}
-    .table>:not(caption)>*>*{border-bottom-color:#243244}
-    .chip{display:inline-block;padding:.2rem .55rem;border-radius:999px;background:#0b1220;border:1px solid #1f2937;color:#cbd5e1}
-    .muted{color:#94a3b8}
-    .sticky-top-blur{backdrop-filter:saturate(180%) blur(8px);background:rgba(2,6,23,.7)}
-    .table-sm td,.table-sm th{padding:.5rem .6rem}
-     .knockout-card{
-    background: radial-gradient(circle at top, rgba(56,189,248,.16), transparent 55%),
-                radial-gradient(circle at bottom, rgba(129,140,248,.18), transparent 60%),
-                #020617;
-    border:1px solid #1f2937;
-    box-shadow:0 18px 45px rgba(15,23,42,.85);
-    position:relative;
-    overflow:hidden;
-  }
-  .knockout-card::after{
-    content:"";
-    position:absolute;
-    inset:0;
-    background:linear-gradient(135deg,rgba(56,189,248,.18),transparent,rgba(96,165,250,.15));
-    opacity:.25;
-    mix-blend-mode:screen;
-    pointer-events:none;
-  }
-  .knockout-title{
-    letter-spacing:.08em;
-    font-size:.8rem;
-    text-transform:uppercase;
-  }
-  .badge-lightning{
-    border-radius:999px;
-    padding:.2rem .7rem;
-    border:1px solid #1f2937;
-    background:#020617;
-    font-size:.75rem;
-    display:inline-flex;
-    align-items:center;
-    gap:.35rem;
-  }
-  .badge-lightning span{
-    font-size:.9rem;
-  }
+    :root {
+      --bg-base: #0B132B;
+      --bg-surface: #131F3E;
+      --bg-elevated: #1C2D5A;
+      --bg-subtle: #0F1933;
+      --border-color: #2A3F73;
+      --border-strong: #3E5A99;
+      --text-primary: #F8FAFC;
+      --text-secondary: #94A3B8;
+      --accent-gold: #FBBF24;
+      --accent-gold-bg: rgba(251, 191, 36, 0.14);
+      --accent-gold-text: #0B132B;
+      --pitch-green: #4ADE80;
+      --pitch-green-bg: rgba(74, 222, 128, 0.12);
+      --pitch-green-border: #22C55E;
+      --yellow-card-bg: #713F12;
+      --yellow-card-text: #FEF08A;
+      --yellow-card-fill: #FACC15;
+      --red-card-bg: #991B1B;
+      --red-card-text: #FEE2E2;
+      --red-card-fill: #EF4444;
+      --focus-ring: #FBBF24;
+      --shadow-elevated: 0 10px 28px rgba(4, 9, 24, 0.55);
+    }
 
-  .match-card{
-    position:relative;
-    background:#020617;
-    border-radius:1rem;
-    padding:.8rem 1rem;
-    border:1px solid #1f2937;
-    overflow:hidden;
-  }
-  .match-card::before{
-    content:"";
-    position:absolute;
-    inset:-40%;
-    background:radial-gradient(circle,rgba(56,189,248,.18),transparent 60%);
-    opacity:0;
-    transition:.35s ease;
-  }
-  .match-card:hover::before{
-    opacity:1;
-  }
-  .match-teams{
-    position:relative;
-    z-index:1;
-  }
-  .seed-pill{
-    border-radius:999px;
-    border:1px solid #1f2937;
-    font-size:.7rem;
-    padding:.1rem .45rem;
-    min-width:2rem;
-    text-align:center;
-    background:#020617;
-    color:#9ca3af;
-  }
- .team-name{
-  font-weight:700;
-  font-size:1rem;
-  color:#ffffff; /* واضح وفاتح */
-  text-shadow:
-    0 0 6px rgba(56,189,248,0.6),
-    0 0 12px rgba(56,189,248,0.3);
-}
-  .vs-badge{
-    width:2.1rem;
-    height:2.1rem;
-    border-radius:999px;
-    border:1px solid #1e293b;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    font-size:.7rem;
-    font-weight:700;
-    text-transform:uppercase;
-    background:radial-gradient(circle,rgba(15,23,42,1),#020617);
-    box-shadow:0 0 0 1px rgba(30,64,175,.7);
-  }
-  .match-meta{
-    font-size:.75rem;
-  }
-  .tag-round{
-    border-radius:999px;
-    border:1px dashed #334155;
-    padding:.15rem .65rem;
-    font-size:.7rem;
-    color:#93c5fd;
-  }
-    .winner {
-  color: #0f9d29; /* Green */
-  font-weight: bold;
-}
+    *, *::before, *::after {
+      box-sizing: border-box;
+    }
 
-.score-badge {
-  padding: 4px 10px;
-  background: #e9ecef;
-  border-radius: 6px;
-  font-weight: bold;
-}
+    html {
+      scroll-behavior: smooth;
+      scroll-padding-top: 5.5rem;
+    }
+
+    body {
+      margin: 0;
+      background-color: var(--bg-base);
+      color: var(--text-primary);
+      font-family: 'Tajawal', system-ui, -apple-system, sans-serif;
+      font-size: clamp(0.95rem, 0.9rem + 0.25vw, 1.05rem);
+      line-height: 1.6;
+      padding-bottom: 5.5rem;
+      overflow-x: hidden;
+    }
+
+    h1, h2, h3, h4, .font-heading {
+      font-family: 'Cairo', system-ui, -apple-system, sans-serif;
+      margin: 0;
+      line-height: 1.3;
+    }
+
+    .tabular {
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* Keyboard Focus (R-32) */
+    a:focus-visible,
+    button:focus-visible,
+    input:focus-visible,
+    select:focus-visible,
+    [tabindex]:focus-visible {
+      outline: 3px solid var(--focus-ring);
+      outline-offset: 2px;
+    }
+
+    /* Skip Link for Keyboard Users */
+    .skip-link {
+      position: absolute;
+      top: -100px;
+      right: 1rem;
+      background: var(--accent-gold);
+      color: var(--accent-gold-text);
+      padding: 0.6rem 1.2rem;
+      font-weight: 700;
+      border-radius: 6px;
+      z-index: 1000;
+      text-decoration: none;
+    }
+    .skip-link:focus {
+      top: 0.75rem;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 1240px;
+      margin: 0 auto;
+      padding: 0 1rem;
+    }
+
+    /* Top Header */
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background-color: var(--bg-surface);
+      border-bottom: 2px solid var(--border-color);
+    }
+
+    .header-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+      padding: 0.65rem 0;
+      flex-wrap: wrap;
+    }
+
+    .brand-wrap {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      text-decoration: none;
+      color: var(--text-primary);
+    }
+
+    .brand-logo {
+      width: 52px;
+      height: 52px;
+      object-fit: contain;
+      border-radius: 10px;
+      background: #FFFFFF;
+      padding: 2px;
+      border: 1px solid var(--border-color);
+      flex-shrink: 0;
+    }
+
+    .brand-title {
+      font-size: clamp(1.1rem, 1rem + 0.6vw, 1.45rem);
+      font-weight: 800;
+    }
+
+    .brand-subtitle {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      display: block;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    /* Desktop Nav Links */
+    .desktop-nav {
+      display: none;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .nav-link {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 44px;
+      padding: 0.45rem 0.9rem;
+      border-radius: 8px;
+      color: var(--text-primary);
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 0.95rem;
+      border: 1px solid transparent;
+      transition: background-color 0.15s ease, border-color 0.15s ease;
+    }
+
+    .nav-link:hover {
+      background-color: var(--bg-elevated);
+      border-color: var(--border-color);
+    }
+
+    .install-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.45rem;
+      min-height: 44px;
+      min-width: 44px;
+      padding: 0.45rem 0.9rem;
+      border-radius: 8px;
+      background-color: var(--accent-gold);
+      color: var(--accent-gold-text);
+      border: 1px solid var(--accent-gold);
+      font-family: inherit;
+      font-weight: 800;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: opacity 0.15s ease;
+    }
+
+    .install-btn:hover {
+      opacity: 0.92;
+    }
+
+    /* Accessible Modals (PWA Install Guide & Secret Admin Visit Counter) */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 200;
+      background-color: rgba(4, 9, 24, 0.8);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+    }
+
+    .modal-backdrop[hidden] {
+      display: none;
+    }
+
+    .modal-dialog {
+      background-color: var(--bg-surface);
+      border: 1px solid var(--border-strong);
+      border-top: 4px solid var(--accent-gold);
+      border-radius: 12px;
+      width: 100%;
+      max-width: 480px;
+      padding: 1.25rem;
+      box-shadow: var(--shadow-elevated);
+    }
+
+    .modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+      padding-bottom: 0.65rem;
+      margin-bottom: 1rem;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .modal-title {
+      font-size: 1.15rem;
+      font-weight: 800;
+    }
+
+    .modal-close-btn {
+      min-width: 44px;
+      min-height: 44px;
+      border-radius: 8px;
+      border: 1px solid var(--border-color);
+      background-color: var(--bg-subtle);
+      color: var(--text-primary);
+      font-family: inherit;
+      font-weight: 800;
+      font-size: 0.9rem;
+      cursor: pointer;
+    }
+
+    .admin-stats-box {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.75rem;
+      margin: 1rem 0;
+    }
+
+    .admin-stat-tile {
+      background-color: var(--bg-subtle);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 0.85rem;
+      text-align: center;
+    }
+
+    .admin-stat-num {
+      display: block;
+      font-family: 'Cairo', sans-serif;
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: var(--accent-gold);
+      line-height: 1.2;
+    }
+
+    .admin-stat-label {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      font-weight: 700;
+    }
+
+    .pin-form {
+      display: flex;
+      gap: 0.5rem;
+      margin-top: 0.75rem;
+    }
+
+    /* Mobile Bottom Navigation (R-03) */
+    .mobile-bottom-nav {
+      position: fixed;
+      bottom: 0;
+      right: 0;
+      left: 0;
+      z-index: 95;
+      background-color: var(--bg-surface);
+      border-top: 2px solid var(--border-color);
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 0.2rem;
+      padding: 0.35rem 0.35rem calc(0.35rem + env(safe-area-inset-bottom, 0px));
+    }
+
+    .mobile-nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 48px;
+      padding: 0.25rem;
+      border-radius: 8px;
+      color: var(--text-primary);
+      text-decoration: none;
+      font-size: 0.8rem;
+      font-weight: 700;
+      text-align: center;
+    }
+
+    .mobile-nav-item:active,
+    .mobile-nav-item:hover {
+      background-color: var(--bg-elevated);
+      color: var(--accent-gold);
+    }
+
+    /* Section Rhythm & Structure */
+    .tournament-banner {
+      margin-top: 1.25rem;
+      margin-bottom: 1.75rem;
+      background-color: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-top: 4px solid var(--accent-gold);
+      border-radius: 12px;
+      padding: 1.25rem;
+      box-shadow: var(--shadow-elevated);
+    }
+
+    .banner-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1.25rem;
+      align-items: center;
+    }
+
+    .banner-headline {
+      font-size: clamp(1.35rem, 1.15rem + 1vw, 2rem);
+      font-weight: 800;
+      margin-bottom: 0.4rem;
+    }
+
+    .banner-desc {
+      color: var(--text-secondary);
+      margin: 0 0 1rem 0;
+      max-width: 65ch;
+    }
+
+    .rules-strip {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.6rem;
+    }
+
+    .rule-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.4rem 0.8rem;
+      background-color: var(--bg-subtle);
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      font-size: 0.88rem;
+      font-weight: 700;
+    }
+
+    .rule-tag-highlight {
+      background-color: var(--pitch-green-bg);
+      border-color: var(--pitch-green-border);
+      color: var(--pitch-green);
+    }
+
+    .next-match-spotlight {
+      background-color: var(--bg-subtle);
+      border: 1px solid var(--border-strong);
+      border-radius: 10px;
+      padding: 1rem;
+    }
+
+    .spotlight-label {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--accent-gold);
+      margin-bottom: 0.4rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .spotlight-teams {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+      margin: 0.65rem 0;
+      font-family: 'Cairo', sans-serif;
+      font-size: 1.15rem;
+      font-weight: 800;
+    }
+
+    .vs-pill {
+      padding: 0.2rem 0.6rem;
+      border-radius: 6px;
+      background-color: var(--bg-elevated);
+      border: 1px solid var(--border-color);
+      font-size: 0.85rem;
+      color: var(--accent-gold);
+    }
+
+    /* Section Headings */
+    .section-block {
+      margin-bottom: 2.25rem;
+    }
+
+    .section-header {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 0.75rem;
+      margin-bottom: 1rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 2px solid var(--border-color);
+    }
+
+    .section-title {
+      font-size: clamp(1.25rem, 1.1rem + 0.6vw, 1.6rem);
+      font-weight: 800;
+    }
+
+    .section-subtitle {
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+    }
+
+    /* 4 Groups Grid (3-state responsive reflow) */
+    .groups-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1.25rem;
+    }
+
+    .group-card {
+      background-color: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-top: 4px solid var(--pitch-green-border);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    .group-card-header {
+      padding: 0.85rem 1rem;
+      background-color: var(--bg-subtle);
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .group-name {
+      font-size: 1.15rem;
+      font-weight: 800;
+    }
+
+    .group-count {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      font-weight: 700;
+    }
+
+    .standings-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.92rem;
+    }
+
+    .standings-table th,
+    .standings-table td {
+      padding: 0.55rem 0.45rem;
+      text-align: center;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .standings-table th {
+      color: var(--text-secondary);
+      font-weight: 700;
+      font-size: 0.82rem;
+      background-color: var(--bg-subtle);
+    }
+
+    .standings-table th.col-team,
+    .standings-table td.col-team {
+      text-align: right;
+      padding-right: 0.75rem;
+      font-weight: 700;
+    }
+
+    .standings-table tbody tr:last-child td {
+      border-bottom: none;
+    }
+
+    .standings-table tr.qualifies-row {
+      background-color: var(--pitch-green-bg);
+    }
+
+    .rank-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 24px;
+      height: 24px;
+      border-radius: 6px;
+      font-weight: 800;
+      font-size: 0.82rem;
+      background-color: var(--bg-elevated);
+      border: 1px solid var(--border-color);
+    }
+
+    .qualifies-row .rank-badge {
+      background-color: var(--pitch-green-border);
+      color: #FFFFFF;
+      border-color: var(--pitch-green-border);
+    }
+
+    .qualify-note {
+      padding: 0.55rem 1rem;
+      font-size: 0.82rem;
+      color: var(--pitch-green);
+      background-color: var(--bg-subtle);
+      border-top: 1px solid var(--border-color);
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .grade-pill {
+      display: inline-block;
+      padding: 0.1rem 0.45rem;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      margin-right: 0.35rem;
+      background-color: var(--bg-elevated);
+      color: var(--text-secondary);
+      border: 1px solid var(--border-color);
+    }
+
+    /* Knockout Stage */
+    .knockout-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1.25rem;
+    }
+
+    .stage-column {
+      background-color: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 1rem;
+    }
+
+    .stage-column-final {
+      border-top: 4px solid var(--accent-gold);
+    }
+
+    .stage-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 0.85rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .stage-title {
+      font-size: 1.1rem;
+      font-weight: 800;
+    }
+
+    .stage-tag {
+      font-size: 0.8rem;
+      font-weight: 700;
+      padding: 0.2rem 0.55rem;
+      border-radius: 6px;
+      background-color: var(--bg-elevated);
+      color: var(--text-secondary);
+    }
+
+    .stage-tag-gold {
+      background-color: var(--accent-gold-bg);
+      color: var(--accent-gold);
+      border: 1px solid var(--accent-gold);
+    }
+
+    .bracket-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .bracket-match {
+      background-color: var(--bg-subtle);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 0.75rem 0.9rem;
+    }
+
+    .bracket-match-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+      margin-bottom: 0.45rem;
+    }
+
+    .bracket-teams {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+      font-weight: 700;
+    }
+
+    .bracket-score {
+      padding: 0.2rem 0.6rem;
+      background-color: var(--bg-elevated);
+      border: 1px solid var(--border-strong);
+      border-radius: 6px;
+      font-weight: 800;
+      font-size: 0.9rem;
+    }
+
+    /* Controls Bar for Schedule */
+    .controls-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      align-items: center;
+      justify-content: space-between;
+      background-color: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      padding: 0.85rem;
+      margin-bottom: 1rem;
+    }
+
+    .filter-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    .filter-btn {
+      min-height: 44px;
+      min-width: 44px;
+      padding: 0.45rem 0.9rem;
+      border-radius: 8px;
+      border: 1px solid var(--border-color);
+      background-color: var(--bg-subtle);
+      color: var(--text-primary);
+      font-family: inherit;
+      font-size: 0.9rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background-color 0.15s ease, border-color 0.15s ease;
+    }
+
+    .filter-btn:hover {
+      background-color: var(--bg-elevated);
+    }
+
+    .filter-btn[aria-pressed="true"] {
+      background-color: var(--accent-gold);
+      color: var(--accent-gold-text);
+      border-color: var(--accent-gold);
+    }
+
+    .search-box-wrap {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      flex: 1 1 240px;
+      max-width: 340px;
+    }
+
+    .search-input {
+      width: 100%;
+      min-height: 44px;
+      padding: 0.5rem 0.85rem;
+      border-radius: 8px;
+      border: 1px solid var(--border-strong);
+      background-color: var(--bg-subtle);
+      color: var(--text-primary);
+      font-family: inherit;
+      font-size: 0.95rem;
+    }
+
+    .search-input::placeholder {
+      color: var(--text-secondary);
+    }
+
+    /* Schedule Table & Mobile Reflow (R-03) */
+    .schedule-container {
+      background-color: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    .schedule-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .schedule-table th,
+    .schedule-table td {
+      padding: 0.75rem 0.85rem;
+      border-bottom: 1px solid var(--border-color);
+      text-align: center;
+    }
+
+    .schedule-table th {
+      background-color: var(--bg-subtle);
+      color: var(--text-secondary);
+      font-size: 0.85rem;
+      font-weight: 700;
+    }
+
+    .schedule-table tbody tr:hover {
+      background-color: var(--bg-subtle);
+    }
+
+    .group-badge {
+      display: inline-block;
+      padding: 0.2rem 0.55rem;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      background-color: var(--bg-elevated);
+      border: 1px solid var(--border-color);
+    }
+
+    .match-score-cell {
+      display: inline-block;
+      min-width: 64px;
+      padding: 0.25rem 0.65rem;
+      border-radius: 6px;
+      background-color: var(--bg-elevated);
+      border: 1px solid var(--border-strong);
+      font-weight: 800;
+      color: var(--accent-gold);
+    }
+
+    .empty-state-box {
+      padding: 2rem 1rem;
+      text-align: center;
+      color: var(--text-secondary);
+    }
+
+    .reset-btn {
+      margin-top: 0.75rem;
+      min-height: 44px;
+      padding: 0.5rem 1.1rem;
+      border-radius: 8px;
+      border: 1px solid var(--border-strong);
+      background-color: var(--bg-elevated);
+      color: var(--text-primary);
+      font-family: inherit;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    /* Statistics & Discipline Cards (Goals, Assists, Yellow Cards, Red Cards) */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1.25rem;
+    }
+
+    .stat-card {
+      background-color: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .stat-card-yellow {
+      border-top: 4px solid var(--yellow-card-fill);
+    }
+
+    .stat-card-red {
+      border-top: 4px solid var(--red-card-fill);
+    }
+
+    .stat-card-goals {
+      border-top: 4px solid var(--pitch-green-border);
+    }
+
+    .stat-card-assists {
+      border-top: 4px solid var(--accent-gold);
+    }
+
+    .stat-card-header {
+      padding: 0.85rem 1rem;
+      background-color: var(--bg-subtle);
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+    }
+
+    .stat-title-wrap {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .stat-title {
+      font-size: 1.1rem;
+      font-weight: 800;
+    }
+
+    .card-rect-icon {
+      display: inline-block;
+      width: 14px;
+      height: 20px;
+      border-radius: 3px;
+      flex-shrink: 0;
+    }
+
+    .card-rect-yellow {
+      background-color: var(--yellow-card-fill);
+      border: 1px solid rgba(0, 0, 0, 0.25);
+    }
+
+    .card-rect-red {
+      background-color: var(--red-card-fill);
+      border: 1px solid rgba(0, 0, 0, 0.25);
+    }
+
+    .discipline-pill-yellow {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      padding: 0.2rem 0.6rem;
+      border-radius: 6px;
+      background-color: var(--yellow-card-bg);
+      color: var(--yellow-card-text);
+      font-weight: 800;
+      font-size: 0.85rem;
+    }
+
+    .discipline-pill-red {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      padding: 0.2rem 0.6rem;
+      border-radius: 6px;
+      background-color: var(--red-card-bg);
+      color: var(--red-card-text);
+      font-weight: 800;
+      font-size: 0.85rem;
+    }
+
+    .stat-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.92rem;
+    }
+
+    .stat-table th,
+    .stat-table td {
+      padding: 0.6rem 0.75rem;
+      border-bottom: 1px solid var(--border-color);
+      text-align: right;
+    }
+
+    .stat-table th {
+      background-color: var(--bg-subtle);
+      color: var(--text-secondary);
+      font-size: 0.82rem;
+      font-weight: 700;
+    }
+
+    .stat-table th.text-center,
+    .stat-table td.text-center {
+      text-align: center;
+    }
+
+    .stat-table tbody tr:last-child td {
+      border-bottom: none;
+    }
+
+    /* Rules & School Discipline Section */
+    .rules-board-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1.25rem;
+    }
+
+    .rules-panel {
+      background-color: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 1.15rem;
+    }
+
+    .rules-panel-cards {
+      border-top: 4px solid var(--yellow-card-fill);
+    }
+
+    .rules-panel-school {
+      border-top: 4px solid var(--pitch-green-border);
+    }
+
+    .rules-panel-title {
+      font-size: 1.15rem;
+      font-weight: 800;
+      margin-bottom: 0.9rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+    }
+
+    .suspension-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.85rem;
+    }
+
+    .suspension-item {
+      background-color: var(--bg-subtle);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 0.85rem 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.45rem;
+    }
+
+    .suspension-top {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+    }
+
+    .cards-visual-group {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      font-weight: 800;
+    }
+
+    .suspension-desc {
+      margin: 0;
+      font-size: 0.92rem;
+      color: var(--text-secondary);
+    }
+
+    .school-rules-list {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .school-rule-item {
+      background-color: var(--bg-subtle);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 0.75rem 1rem;
+      display: flex;
+      align-items: flex-start;
+      gap: 0.75rem;
+    }
+
+    .school-rule-num {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 28px;
+      height: 28px;
+      border-radius: 6px;
+      background-color: var(--pitch-green-bg);
+      border: 1px solid var(--pitch-green-border);
+      color: var(--pitch-green);
+      font-weight: 800;
+      font-size: 0.88rem;
+      flex-shrink: 0;
+      margin-top: 0.1rem;
+    }
+
+    .school-rule-title {
+      font-weight: 800;
+      display: block;
+      margin-bottom: 0.15rem;
+    }
+
+    .school-rule-text {
+      margin: 0;
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+    }
+
+    .site-footer {
+      margin-top: 3rem;
+      padding: 1.5rem 0;
+      border-top: 1px solid var(--border-color);
+      color: var(--text-secondary);
+      font-size: 0.88rem;
+      text-align: center;
+    }
+
+    /* Mobile Reflow for Schedule Table (< 640px) - No Horizontal Overflow */
+    @media (max-width: 639px) {
+      .schedule-table thead {
+        display: none;
+      }
+
+      .schedule-table,
+      .schedule-table tbody,
+      .schedule-table tr,
+      .schedule-table td {
+        display: block;
+        width: 100%;
+      }
+
+      .schedule-table tbody tr {
+        padding: 0.85rem 1rem;
+        border-bottom: 1px solid var(--border-color);
+        display: grid;
+        grid-template-columns: 1fr auto 1fr;
+        grid-template-areas:
+          "meta meta meta"
+          "team1 score team2";
+        gap: 0.5rem;
+        align-items: center;
+      }
+
+      .schedule-table td {
+        border: none;
+        padding: 0;
+      }
+
+      .schedule-table td.d-none-mobile {
+        display: none;
+      }
+
+      .schedule-table td.cell-meta {
+        grid-area: meta;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 0.82rem;
+        color: var(--text-secondary);
+        padding-bottom: 0.35rem;
+        border-bottom: 1px dashed var(--border-color);
+      }
+
+      .schedule-table td.cell-team1 {
+        grid-area: team1;
+        text-align: right;
+        font-weight: 800;
+        font-size: 1rem;
+      }
+
+      .schedule-table td.cell-score {
+        grid-area: score;
+        text-align: center;
+      }
+
+      .schedule-table td.cell-team2 {
+        grid-area: team2;
+        text-align: left;
+        font-weight: 800;
+        font-size: 1rem;
+      }
+    }
+
+    /* Tablet Breakpoint (640px to 1023px) - 2-Column State */
+    @media (min-width: 640px) {
+      .cell-meta .group-badge {
+        display: none;
+      }
+
+      .groups-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .knockout-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .stage-column-final {
+        grid-column: span 2;
+      }
+    }
+
+    /* Desktop Breakpoint (>= 1024px) - Full Multi-Column State */
+    @media (min-width: 1024px) {
+      body {
+        padding-bottom: 2rem;
+      }
+
+      .mobile-bottom-nav {
+        display: none;
+      }
+
+      .desktop-nav {
+        display: flex;
+      }
+
+      .banner-grid {
+        grid-template-columns: 1.55fr 1fr;
+      }
+
+      .rules-board-grid {
+        grid-template-columns: 1fr 1.15fr;
+      }
+
+      .knockout-grid {
+        grid-template-columns: 1.2fr 1fr 0.9fr;
+      }
+
+      .stage-column-final {
+        grid-column: auto;
+      }
+    }
   </style>
 </head>
 <body>
-<!-- شريط علوي -->
-<nav class="sticky-top sticky-top-blur border-bottom border-secondary-subtle">
-  <div class="container py-3 d-flex flex-wrap align-items-center gap-3">
-    <div class="d-flex align-items-center brand fs-4">
-      <img src="static/alnoor_logo.png" alt="شعار النور"
-           style="height:100px;width:auto;margin-left:10px;border-radius:20px;">
-      <span>دوري أبطال النور</span>
-    </div>
-  </div>
-</nav>
 
-  <main class="container my-4">
+  <a href="#main-content" class="skip-link">انتقل إلى المحتوى الرئيسي</a>
 
-    !-- نصف النهائي – Semi Finals -->
-<section class="mb-4">
-  <div class="card knockout-card">
-    <div class="card-body position-relative">
-
-      <!-- Header -->
-      <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
+  <!-- الشريط العلوي -->
+  <header class="site-header">
+    <div class="container header-inner">
+      <a href="#top" class="brand-wrap" id="top">
+        <img src="static/alnoor_logo.png" alt="شعار مدرسة النور الإعدادية رهط" class="brand-logo" />
         <div>
-          <div class="knockout-title text-uppercase text-muted mb-1">Knockout Stage</div>
-          <h4 class="m-0">نصف النهائي</h4>
+          <span class="brand-title font-heading">دوري أبطال النور 2026</span>
+          <span class="brand-subtitle">مدرسة النور الإعدادية رهط · التميّز، الاحترام، المسؤولية</span>
         </div>
-        <span class="badge-lightning"><span>🔥</span></span>
+      </a>
+
+      <nav class="desktop-nav" aria-label="التنقل الرئيسي">
+        <a href="#groups-section" class="nav-link">المجموعات والترتيب</a>
+        <a href="#schedule-section" class="nav-link">جدول المباريات</a>
+        <a href="#stats-section" class="nav-link">الإحصائيات والبطاقات</a>
+        <a href="#knockout-section" class="nav-link">الأدوار الإقصائية</a>
+        <a href="#rules-section" class="nav-link">قوانين البطولة</a>
+      </nav>
+
+      <div class="header-actions">
+        <button type="button" class="install-btn" id="install-app-btn" aria-label="تثبيت الموقع كتطبيق على الهاتف">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            <polyline points="7 10 12 15 17 10"></polyline>
+            <line x1="12" y1="15" x2="12" y2="3"></line>
+          </svg>
+          <span>تثبيت كتطبيق</span>
+        </button>
       </div>
-
-      <!-- GRID -->
-      <div class="row g-3">
-
-        <!--==================== LEFT COLUMN ====================-->
-        <div class="col-12 col-lg-6 d-flex flex-column gap-3">
-
-          <!-- Semi Final Match 1 -->
-          <div class="match-card">
-            <div class="match-teams">
-              <div class="d-flex justify-content-between align-items-center mb-1">
-
-                <div class="d-flex align-items-center gap-2">
-                  <span class="team-name winner">الغزالي-ابو بكر</span>
-                </div>
-
-                <div class="score-badge">1-1(1-2)</div>
-
-                <div class="d-flex align-items-center gap-2 flex-row-reverse">
-                  <span class="team-name">الجوري</span>
-                </div>
-
-              </div>
-              <div class="d-flex justify-content-between align-items-center mt-1 match-meta">
-                <span class="muted">27/1/26</span>
-              </div>
-            </div>
-          </div>
-
-        </div>
-
-        <!--==================== RIGHT COLUMN ====================-->
-        <div class="col-12 col-lg-6 d-flex flex-column gap-3">
-
-          <!-- Semi Final Match 2 -->
-          <div class="match-card">
-            <div class="match-teams">
-              <div class="d-flex justify-content-between align-items-center mb-1">
-
-                <div class="d-flex align-items-center gap-2">
-                  <span class="team-name">الريحان</span>
-                </div>
-
-                <div class="score-badge">1-0</div>
-
-                <div class="d-flex align-items-center gap-2 flex-row-reverse">
-                  <span class="team-name winner">القرنفل</span>
-                </div>
-
-              </div>
-              <div class="d-flex justify-content-between align-items-center mt-1 match-meta">
-                <span class="muted">1/2/26</span>
-              </div>
-            </div>
-          </div>
-
-        </div>
-
-      </div><!-- END ROW -->
     </div>
-  </div>
-</section>
+  </header>
 
-<!-- ربع النهائي – أعلى الصفحة -->
-<section class="mb-4">
-  <div class="card knockout-card">
-    <div class="card-body position-relative">
+  <main class="container" id="main-content">
 
-      <!-- العنوان -->
-      <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
+    <!-- لوحة البطولة والمباراة الافتتاحية -->
+    <section class="tournament-banner" aria-labelledby="banner-heading">
+      <div class="banner-grid">
         <div>
-          <div class="knockout-title text-uppercase text-muted mb-1">Knockout Stage</div>
-          <h4 class="m-0">ربع النهائي</h4>
+          <h1 class="banner-headline" id="banner-heading">بطولة كرة القدم المدرسية لعام 2026</h1>
+          <p class="banner-desc">
+            يشارك في البطولة 19 صفاً من طبقات السابع والثامن والتاسع، موزعين بالقرعة العشوائية على 4 مجموعات. تلعب كل فرقة مباراة واحدة ضد فرق مجموعتها، ويتأهل صاحبا المركزين الأول والثاني من كل مجموعة إلى ربع النهائي.
+          </p>
+          <div class="rules-strip">
+            <span class="rule-tag">انطلاق البطولة: الأربعاء 11/11/2026</span>
+            <span class="rule-tag">أيام اللعب: الأحد إلى الخميس (مباراة يومياً)</span>
+            <span class="rule-tag rule-tag-highlight">يتأهل أول وثاني كل مجموعة لربع النهائي</span>
+          </div>
         </div>
-        <span class="badge-lightning"><span>⚡</span></span>
+
+        <div class="next-match-spotlight" aria-label="المباراة الافتتاحية">
+          <div class="spotlight-label">
+            <span>المباراة الافتتاحية (المباراة 1)</span>
+            <span class="tabular">الأربعاء 11/11/2026</span>
+          </div>
+          <div class="spotlight-teams">
+            <span>ثامن 5</span>
+            <span class="vs-pill">ضد</span>
+            <span>تاسع 7</span>
+          </div>
+          <div class="section-subtitle">المجموعة أ · الجولة الأولى</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 1. المجموعات الأربع وجدول الترتيب -->
+    <section class="section-block" id="groups-section" aria-labelledby="groups-title">
+      <div class="section-header">
+        <div>
+          <h2 class="section-title" id="groups-title">المجموعات والترتيب (القرعة العشوائية)</h2>
+          <p class="section-subtitle">تتحدث النقاط وفارق الأهداف تلقائياً عند إدخال نتائج المباريات في الجدول أدناه</p>
+        </div>
       </div>
 
-      <!-- GRID -->
-      <div class="row g-3">
+      <div class="groups-grid">
 
-        <!--==================== LEFT COLUMN ====================-->
-        <div class="col-12 col-lg-6 d-flex flex-column gap-3">
-
-          <!-- مباراة 1 -->
-          <div class="match-card">
-            <div class="match-teams">
-              <div class="d-flex justify-content-between align-items-center mb-1">
-
-                <div class="d-flex align-items-center gap-2">
-                  <span class="team-name winner">الغزالي-ابو بكر</span>
-                </div>
-
-                <div class="score-badge">1-1 (0-2)</div>
-
-                <div class="d-flex align-items-center gap-2 flex-row-reverse">
-                  <span class="team-name">الفرابي</span>
-                </div>
-
-              </div>
-              <div class="d-flex justify-content-between align-items-center mt-1 match-meta">
-                <span class="muted">الأربعاء 03/12/2025</span>
-              </div>
-            </div>
+        <!-- المجموعة أ (5 فرق) -->
+        <article class="group-card" aria-labelledby="group-a-title">
+          <div class="group-card-header">
+            <h3 class="group-name" id="group-a-title">المجموعة أ</h3>
+            <span class="group-count">5 فرق · 10 مباريات</span>
           </div>
-
-          
-
-          <!-- مباراة 2 -->
-          
-          <div class="match-card">
-            <div class="match-teams">
-              <div class="d-flex justify-content-between align-items-center mb-1">
-
-                <div class="d-flex align-items-center gap-2">
-                  <span class="team-name winner">الجوري </span>
-                </div>
-
-                <div class="score-badge">1-1 (0-2)</div>
-
-                <div class="d-flex align-items-center gap-2 flex-row-reverse">
-                  <span class="team-name">الزنبق</span>
-                </div>
-
-              </div>
-              <div class="d-flex justify-content-between align-items-center mt-1 match-meta">
-                <span class="muted">الثلثاء 09/12/2025</span>
-              </div>
-            </div>
+          <table class="standings-table tabular" data-group-table="أ">
+            <thead>
+              <tr>
+                <th scope="col">#</th>
+                <th scope="col" class="col-team">الفريق</th>
+                <th scope="col" title="لعب">ل</th>
+                <th scope="col" title="فاز">ف</th>
+                <th scope="col" title="تعادل">ت</th>
+                <th scope="col" title="خسر">خ</th>
+                <th scope="col" title="له">له</th>
+                <th scope="col" title="عليه">ع</th>
+                <th scope="col" title="فارق الأهداف">±</th>
+                <th scope="col" title="نقاط">ن</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="qualifies-row">
+                <td><span class="rank-badge">1</span></td>
+                <td class="col-team">ثامن 5</td>
+                <td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td><strong>0</strong></td>
+              </tr>
+              <tr class="qualifies-row">
+                <td><span class="rank-badge">2</span></td>
+                <td class="col-team">تاسع 7</td>
+                <td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td><strong>0</strong></td>
+              </tr>
+              <tr>
+                <td><span class="rank-badge">3</span></td>
+                <td class="col-team">سابع 4</td>
+                <td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td><strong>0</strong></td>
+              </tr>
+              <tr>
+                <td><span class="rank-badge">4</span></td>
+                <td class="col-team">سابع 2</td>
+                <td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td><strong>0</strong></td>
+              </tr>
+              <tr>
+                <td><span class="rank-badge">5</span></td>
+                <td class="col-team">تاسع 1</td>
+                <td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td><strong>0</strong></td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="qualify-note">
+            <span>المركزان 1 و 2 يتأهلان إلى ربع النهائي</span>
           </div>
-        
+        </article>
 
-        </div>
-
-        <!--==================== RIGHT COLUMN ====================-->
-        <div class="col-12 col-lg-6 d-flex flex-column gap-3">
-
-          <!-- مباراة 3 -->
-
-            <div class="match-card">
-            <div class="match-teams">
-              <div class="d-flex justify-content-between align-items-center mb-1">
-
-                <div class="d-flex align-items-center gap-2">
-                  <span class="team-name winner">الريحان </span>
-                </div>
-
-                <div class="score-badge">0-2</div>
-
-                <div class="d-flex align-items-center gap-2 flex-row-reverse">
-                  <span class="team-name">الاحسان</span>
-                </div>
-
-              </div>
-              <div class="d-flex justify-content-between align-items-center mt-1 match-meta">
-                <span class="muted"> الثلثاء 16/12/2025</span>
-              </div>
-            </div>
+        <!-- المجموعة ب (5 فرق) -->
+        <article class="group-card" aria-labelledby="group-b-title">
+          <div class="group-card-header">
+            <h3 class="group-name" id="group-b-title">المجموعة ب</h3>
+            <span class="group-count">5 فرق · 10 مباريات</span>
           </div>
-          
-
-          <!-- مباراة 4 -->
-          <div class="match-card">
-            <div class="match-teams">
-              <div class="d-flex justify-content-between align-items-center mb-1">
-
-                <div class="d-flex align-items-center gap-2">
-                  <span class="team-name winner">القرنفل </span>
-                </div>
-
-                <div class="score-badge">1-1 (1-3)</div>
-
-                <div class="d-flex align-items-center gap-2 flex-row-reverse">
-                  <span class="team-name">السوسن</span>
-                </div>
-
-              </div>
-              <div class="d-flex justify-content-between align-items-center mt-1 match-meta">
-                <span class="muted">22/12/2025</span>
-              </div>
-            </div>
+          <table class="standings-table tabular" data-group-table="ب">
+            <thead>
+              <tr>
+                <th scope="col">#</th>
+                <th scope="col" class="col-team">الفريق</th>
+                <th scope="col" title="لعب">ل</th>
+                <th scope="col" title="فاز">ف</th>
+                <th scope="col" title="تعادل">ت</th>
+                <th scope="col" title="خسر">خ</th>
+                <th scope="col" title="له">له</th>
+                <th scope="col" title="عليه">ع</th>
+                <th scope="col" title="فارق الأهداف">±</th>
+                <th scope="col" title="نقاط">ن</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="qualifies-row">
+                <td><span class="rank-badge">1</span></td>
+                <td class="col-team">سابع 7</td>
+                <td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td><strong>0</strong></td>
+              </tr>
+              <tr class="qualifies-row">
+                <td><span class="rank-badge">2</span></td>
+                <td class="col-team">سابع 1</td>
+                <td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td><strong>0</strong></td>
+              </tr>
+              <tr>
+                <td><span class="rank-badge">3</span></td>
+                <td class="col-team">ثامن 2</td>
+                <td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td><strong>0</strong></td>
+              </tr>
+              <tr>
+                <td><span class="rank-badge">4</span></td>
+                <td class="col-team">سابع 6</td>
+                <td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td><strong>0</strong></td>
+              </tr>
+              <tr>
+                <td><span class="rank-badge">5</span></td>
+                <td class="col-team">سابع 9</td>
+                <td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td><strong>0</strong></td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="qualify-note">
+            <span>المركزان 1 و 2 يتأهلان إلى ربع النهائي</span>
           </div>
+        </article>
 
-        </div>
+        <!-- المجموعة ج (5 فرق) -->
+        <article class="group-card" aria-labelledby="group-c-title">
+          <div class="group-card-header">
+            <h3 class="group-name" id="group-c-title">المجموعة ج</h3>
+            <span class="group-count">5 فرق · 10 مباريات</span>
+          </div>
+          <table class="standings-table tabular" data-group-table="ج">
+            <thead>
+              <tr>
+                <th scope="col">#</th>
+                <th scope="col" class="col-team">الفريق</th>
+                <th scope="col" title="لعب">ل</th>
+                <th scope="col" title="فاز">ف</th>
+                <th scope="col" title="تعادل">ت</th>
+                <th scope="col" title="خسر">خ</th>
+                <th scope="col" title="له">له</th>
+                <th scope="col" title="عليه">ع</th>
+                <th scope="col" title="فارق الأهداف">±</th>
+                <th scope="col" title="نقاط">ن</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="qualifies-row">
+                <td><span class="rank-badge">1</span></td>
+                <td class="col-team">ثامن 3</td>
+                <td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td><strong>0</strong></td>
+              </tr>
+              <tr class="qualifies-row">
+                <td><span class="rank-badge">2</span></td>
+                <td class="col-team">سابع 3</td>
+                <td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td><strong>0</strong></td>
+              </tr>
+              <tr>
+                <td><span class="rank-badge">3</span></td>
+                <td class="col-team">تاسع 5</td>
+                <td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td><strong>0</strong></td>
+              </tr>
+              <tr>
+                <td><span class="rank-badge">4</span></td>
+                <td class="col-team">سابع 5</td>
+                <td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td><strong>0</strong></td>
+              </tr>
+              <tr>
+                <td><span class="rank-badge">5</span></td>
+                <td class="col-team">تاسع 4</td>
+                <td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td><strong>0</strong></td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="qualify-note">
+            <span>المركزان 1 و 2 يتأهلان إلى ربع النهائي</span>
+          </div>
+        </article>
 
-      </div><!-- END ROW -->
-    </div>
-  </div>
-</section>
+        <!-- المجموعة د (4 فرق) -->
+        <article class="group-card" aria-labelledby="group-d-title">
+          <div class="group-card-header">
+            <h3 class="group-name" id="group-d-title">المجموعة د</h3>
+            <span class="group-count">4 فرق · 6 مباريات</span>
+          </div>
+          <table class="standings-table tabular" data-group-table="د">
+            <thead>
+              <tr>
+                <th scope="col">#</th>
+                <th scope="col" class="col-team">الفريق</th>
+                <th scope="col" title="لعب">ل</th>
+                <th scope="col" title="فاز">ف</th>
+                <th scope="col" title="تعادل">ت</th>
+                <th scope="col" title="خسر">خ</th>
+                <th scope="col" title="له">له</th>
+                <th scope="col" title="عليه">ع</th>
+                <th scope="col" title="فارق الأهداف">±</th>
+                <th scope="col" title="نقاط">ن</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="qualifies-row">
+                <td><span class="rank-badge">1</span></td>
+                <td class="col-team">ثامن 4</td>
+                <td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td><strong>0</strong></td>
+              </tr>
+              <tr class="qualifies-row">
+                <td><span class="rank-badge">2</span></td>
+                <td class="col-team">تاسع 8</td>
+                <td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td><strong>0</strong></td>
+              </tr>
+              <tr>
+                <td><span class="rank-badge">3</span></td>
+                <td class="col-team">سابع 8</td>
+                <td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td><strong>0</strong></td>
+              </tr>
+              <tr>
+                <td><span class="rank-badge">4</span></td>
+                <td class="col-team">تاسع 6</td>
+                <td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td><strong>0</strong></td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="qualify-note">
+            <span>المركزان 1 و 2 يتأهلان إلى ربع النهائي</span>
+          </div>
+        </article>
 
-
-    <div class="row g-4">
-
-  <!-- الترتيب -->
-<div class="col-12 col-lg-5">
-  <div class="card h-100">
-    <div class="card-body">
-      <div class="d-flex justify-content-between align-items-center mb-2">
-        <h5 class="card-title m-0">جدول الترتيب</h5>
       </div>
-      <div class="table-responsive">
-        <table class="table table-sm align-middle">
+    </section>
+
+    <!-- 2. جدول المباريات (الأحد إلى الخميس - بداية من 11/11/2026) -->
+    <section class="section-block" id="schedule-section" aria-labelledby="schedule-title">
+      <div class="section-header">
+        <div>
+          <h2 class="section-title" id="schedule-title">جدول مباريات دور المجموعات (الأحد إلى الخميس)</h2>
+          <p class="section-subtitle">36 مباراة · مباراة يومياً ابتداءً من الأربعاء 11/11/2026 (يتوقف الدوري خلال عطلة الشتاء من 23/12/2026 حتى 09/01/2027)</p>
+        </div>
+      </div>
+
+      <div class="controls-bar" role="region" aria-label="تصفية وبحث المباريات">
+        <div class="filter-buttons" role="group" aria-label="تصفية حسب المجموعة">
+          <button type="button" class="filter-btn" data-filter-group="all" aria-pressed="true">كل المجموعات (36)</button>
+          <button type="button" class="filter-btn" data-filter-group="أ" aria-pressed="false">المجموعة أ (10)</button>
+          <button type="button" class="filter-btn" data-filter-group="ب" aria-pressed="false">المجموعة ب (10)</button>
+          <button type="button" class="filter-btn" data-filter-group="ج" aria-pressed="false">المجموعة ج (10)</button>
+          <button type="button" class="filter-btn" data-filter-group="د" aria-pressed="false">المجموعة د (6)</button>
+        </div>
+
+        <div class="search-box-wrap">
+          <input
+            type="search"
+            id="team-search-input"
+            class="search-input"
+            placeholder="ابحث عن صفك (مثال: سابع 4 أو تاسع 1)..."
+            aria-label="ابحث عن صفك في جدول المباريات"
+          />
+        </div>
+      </div>
+
+      <div class="schedule-container">
+        <table class="schedule-table tabular" id="matches-table">
           <thead>
             <tr>
-              <th class="text-center">#</th>
-              <th>الفريق</th>
-              <th class="text-center" title="لعب">ل</th>
-              <th class="text-center" title="فاز">ف</th>
-              <th class="text-center" title="تعادل">ت</th>
-              <th class="text-center" title="خسر">خ</th>
-              <th class="text-center" title="له">له</th>
-              <th class="text-center" title="عليه">ع</th>
-              <th class="text-center" title="فارق الأهداف">±</th>
-              <th class="text-center" title="نقاط">ن</th>
+              <th scope="col">اليوم والتاريخ</th>
+              <th scope="col">المجموعة</th>
+              <th scope="col">الفريق الأول</th>
+              <th scope="col">النتيجة</th>
+              <th scope="col">الفريق الثاني</th>
             </tr>
           </thead>
-          <tbody>
-             <tr><td class="text-center">1</td><td>الغزالي-ابو بكر</td><td class="text-center">3</td><td class="text-center">3</td><td class="text-center">0</td><td class="text-center">0</td><td class="text-center">12</td><td class="text-center">1</td><td class="text-center">+11</td><td class="text-center fw-bold">9</td></tr>
-             <tr><td class="text-center">2</td><td>الجوري</td><td class="text-center">3</td><td class="text-center">3</td><td class="text-center">0</td><td class="text-center">0</td><td class="text-center">6</td><td class="text-center">2</td><td class="text-center">+4</td><td class="text-center fw-bold">9</td></tr>
-            <tr><td class="text-center">3</td><td>الاحسان</td><td class="text-center">3</td><td class="text-center">2</td><td class="text-center">1</td><td class="text-center">0</td><td class="text-center">6</td><td class="text-center">1</td><td class="text-center">+5</td><td class="text-center fw-bold">7</td></tr>
-                <tr><td class="text-center">4</td><td>القرنفل</td><td class="text-center">3</td><td class="text-center">2</td><td class="text-center">1</td><td class="text-center">0</td><td class="text-center">4</td><td class="text-center">1</td><td class="text-center">+3</td><td class="text-center fw-bold">7</td></tr>
-            <tr><td class="text-center">5</td><td>السوسن</td><td class="text-center">3</td><td class="text-center">2</td><td class="text-center">0</td><td class="text-center">1</td><td class="text-center">9</td><td class="text-center">2</td><td class="text-center">+7</td><td class="text-center fw-bold">6</td></tr>
-            <tr><td class="text-center">6</td><td>الريحان</td><td class="text-center">3</td><td class="text-center">2</td><td class="text-center">0</td><td class="text-center">1</td><td class="text-center">5</td><td class="text-center">2</td><td class="text-center">+3</td><td class="text-center fw-bold">6</td></tr>
-             <tr><td class="text-center">7</td><td>الزنبق</td><td class="text-center">3</td><td class="text-center">2</td><td class="text-center">0</td><td class="text-center">1</td><td class="text-center">4</td><td class="text-center">2</td><td class="text-center">+2</td><td class="text-center fw-bold">6</td></tr>
-            <tr><td class="text-center">8</td><td>الفرابي</td><td class="text-center">3</td><td class="text-center">1</td><td class="text-center">0</td><td class="text-center">2</td><td class="text-center">7</td><td class="text-center">3</td><td class="text-center">+4</td><td class="text-center fw-bold">3</td></tr>
-            <tr><td class="text-center">9</td><td>النور</td><td class="text-center">3</td><td class="text-center">1</td><td class="text-center">0</td><td class="text-center">2</td><td class="text-center">2</td><td class="text-center">8</td><td class="text-center">-6</td><td class="text-center fw-bold">3</td></tr>
-            <tr><td class="text-center">10</td><td>ابن رشد</td><td class="text-center">3</td><td class="text-center">1</td><td class="text-center">0</td><td class="text-center">2</td><td class="text-center">3</td><td class="text-center">11</td><td class="text-center">-8</td><td class="text-center fw-bold">3</td></tr>
-            <tr><td class="text-center">11</td><td>الاعتصام</td><td class="text-center">3</td><td class="text-center">0</td><td class="text-center">2</td><td class="text-center">1</td><td class="text-center">2</td><td class="text-center">3</td><td class="text-center">-1</td><td class="text-center fw-bold">2</td></tr>
-            <tr><td class="text-center">12</td><td>الياسمين</td><td class="text-center">3</td><td class="text-center">0</td><td class="text-center">1</td><td class="text-center">2</td><td class="text-center">0</td><td class="text-center">3</td><td class="text-center">-3</td><td class="text-center fw-bold">1</td></tr>
-             <tr><td class="text-center">13</td><td>الايمان</td><td class="text-center">3</td><td class="text-center">0</td><td class="text-center">1</td><td class="text-center">2</td><td class="text-center">0</td><td class="text-center">5</td><td class="text-center">-5</td><td class="text-center fw-bold">1</td></tr>       
-            <tr><td class="text-center">14</td><td>التقوى</td><td class="text-center">3</td><td class="text-center">0</td><td class="text-center">0</td><td class="text-center">2</td><td class="text-center">0</td><td class="text-center">8</td><td class="text-center">-8</td><td class="text-center fw-bold">0</td></tr>
-            <tr><td class="text-center">15</td><td>الزهور</td><td class="text-center">2</td><td class="text-center">0</td><td class="text-center">0</td><td class="text-center">2</td><td class="text-center">0</td><td class="text-center">8</td><td class="text-center">-8</td><td class="text-center fw-bold">0</td></tr>
-            
-          </tbody>
-        </table>
-      </div>
-    </div>
-  </div>
-</div>
-
-
- <!-- المباريات والتواريخ -->
-<div class="col-12 col-lg-7">
-  <div class="card h-100">
-    <div class="card-body">
-      <div class="d-flex justify-content-between align-items-center mb-2">
-        <h5 class="card-title m-0">المباريات (الأحد–الخميس)</h5>
-        <span class="chip">بداية: 26/10/2025</span>
-      </div>
-      <div class="table-responsive">
-        <table class="table table-sm align-middle text-center">
-          <thead>
-            <tr>
-              <th>التاريخ</th>
-              <th>الفريق الأول</th>
-              <th>النتيجة</th>
-              <th>الفريق الثاني</th>
+          <tbody id="matches-tbody">
+            <!-- الجولة 1 -->
+            <tr data-group="أ" data-team1="ثامن 5" data-team2="تاسع 7">
+              <td class="cell-meta"><span>الأربعاء 11/11/2026</span><span class="group-badge">مجموعة أ · ج1</span></td>
+              <td class="d-none-mobile"><span class="group-badge">المجموعة أ</span></td>
+              <td class="cell-team1">ثامن 5</td>
+              <td class="cell-score"><span class="match-score-cell">- : -</span></td>
+              <td class="cell-team2">تاسع 7</td>
             </tr>
-          </thead>
-          <tbody>
-            <!-- الأسبوع 1 -->
-            <tr><td>الأحد 26/10/2025</td><td>الايمان</td><td class="text-center fw-bold text-warning">0-0</td><td>الاعتصام</td></tr>
-            <tr><td>الاثنين 27/10/2025</td><td>الاحسان</td><td class="text-center fw-bold text-warning">0-4</td><td>النور</td></tr>
-            <tr><td>الثلاثاء 28/10/2025</td><td>التقوى</td><td class="text-center fw-bold text-warning">4-0</td><td>السوسن</td></tr>
-            <tr><td>الأربعاء 29/10/2025</td><td>الزهور</td><td class="text-center fw-bold text-warning">4-0</td><td>الريحان</td></tr>
-            <tr><td>الخميس 30/10/2025</td><td>القرنفل</td><td class="text-center fw-bold text-warning">0-0</td><td>الياسمين</td></tr>
-            <!-- الأسبوع 2 -->
-            <tr><td>الأحد 02/11/2025</td><td>الجوري</td><td class="text-center fw-bold text-warning">1-2</td><td>الزنبق</td></tr>
-            <tr><td>الاثنين 03/11/2025</td><td>الفرابي</td><td class="text-center fw-bold text-warning">0-6</td><td>ابن رشد</td></tr>
-            <tr><td>الثلاثاء 04/11/2025</td><td>الغزالي-ابو بكر</td><td class="text-center fw-bold text-warning">0-4</td><td>الايمان</td></tr>
-            <tr><td>الأربعاء 05/11/2025</td><td>الاعتصام</td><td class="text-center fw-bold text-warning">1-1</td><td>الاحسان</td></tr>
-            <tr><td>الخميس 06/11/2025</td><td>النور</td><td class="text-center fw-bold text-warning">0-2</td><td>التقوى</td></tr>
-            <!-- الأسبوع 3 -->
-            <tr><td>الأحد 09/11/2025</td><td>السوسن</td><td class="text-center fw-bold text-warning">0-4</td><td>الزهور</td></tr>
-            <tr><td>الاثنين 10/11/2025</td><td>الريحان</td><td class="text-center fw-bold text-warning">2-0</td><td>القرنفل</td></tr>
-            <tr><td>الثلاثاء 11/11/2025</td><td>الياسمين</td><td class="text-center fw-bold text-warning">2-0</td><td>الجوري</td></tr>
-            <tr><td>الأربعاء 12/11/2025</td><td>الزنبق</td><td class="text-center fw-bold text-warning">0-1</td><td>الفرابي</td></tr>
-            <tr><td>الخميس 13/11/2025</td><td>ابن رشد</td><td class="text-center fw-bold text-warning">4-1</td><td>الغزالي-ابو بكر</td></tr>
-            <!-- الأسبوع 4 -->
-            <tr><td>الأحد 16/11/2025</td><td>الايمان</td><td class="text-center fw-bold text-warning">1-0</td><td>الاحسان</td></tr>
-            <tr><td>الاثنين 17/11/2025</td><td>التقوى</td><td class="text-center fw-bold text-warning">2-0</td><td>الزنبق</td></tr>
-            <tr><td>الثلاثاء 18/11/2025</td><td>الريحان</td><td class="text-center fw-bold text-warning">0-1</td><td>الياسمين</td></tr>
-            <tr><td>الأربعاء 19/11/2025</td><td>الجوري</td><td class="text-center fw-bold text-warning">1-2</td><td>الفرابي</td></tr>
-            <tr><td>الخميس 20/11/2025</td><td>ابن رشد</td><td class="text-center fw-bold text-warning">1-2</td><td>الاعتصام</td></tr>
-            <!-- الأسبوع 5 -->
-            <tr><td>الأحد 23/11/2025</td><td>الغزالي-ابو بكر</td><td class="text-center fw-bold text-warning">0-4</td><td>النور</td></tr>
-            <tr><td>الاثنين 24/11/2025</td><td>السوسن</td><td class="text-center fw-bold text-warning">2-1</td><td>القرنفل</td></tr>
+            <tr data-group="أ" data-team1="سابع 4" data-team2="سابع 2">
+              <td class="cell-meta"><span>الخميس 12/11/2026</span><span class="group-badge">مجموعة أ · ج1</span></td>
+              <td class="d-none-mobile"><span class="group-badge">المجموعة أ</span></td>
+              <td class="cell-team1">سابع 4</td>
+              <td class="cell-score"><span class="match-score-cell">- : -</span></td>
+              <td class="cell-team2">سابع 2</td>
+            </tr>
+            <tr data-group="ب" data-team1="سابع 7" data-team2="سابع 1">
+              <td class="cell-meta"><span>الأحد 15/11/2026</span><span class="group-badge">مجموعة ب · ج1</span></td>
+              <td class="d-none-mobile"><span class="group-badge">المجموعة ب</span></td>
+              <td class="cell-team1">سابع 7</td>
+              <td class="cell-score"><span class="match-score-cell">- : -</span></td>
+              <td class="cell-team2">سابع 1</td>
+            </tr>
+            <tr data-group="ب" data-team1="ثامن 2" data-team2="سابع 6">
+              <td class="cell-meta"><span>الاثنين 16/11/2026</span><span class="group-badge">مجموعة ب · ج1</span></td>
+              <td class="d-none-mobile"><span class="group-badge">المجموعة ب</span></td>
+              <td class="cell-team1">ثامن 2</td>
+              <td class="cell-score"><span class="match-score-cell">- : -</span></td>
+              <td class="cell-team2">سابع 6</td>
+            </tr>
+            <tr data-group="ج" data-team1="ثامن 3" data-team2="سابع 3">
+              <td class="cell-meta"><span>الثلاثاء 17/11/2026</span><span class="group-badge">مجموعة ج · ج1</span></td>
+              <td class="d-none-mobile"><span class="group-badge">المجموعة ج</span></td>
+              <td class="cell-team1">ثامن 3</td>
+              <td class="cell-score"><span class="match-score-cell">- : -</span></td>
+              <td class="cell-team2">سابع 3</td>
+            </tr>
+            <tr data-group="ج" data-team1="تاسع 5" data-team2="سابع 5">
+              <td class="cell-meta"><span>الأربعاء 18/11/2026</span><span class="group-badge">مجموعة ج · ج1</span></td>
+              <td class="d-none-mobile"><span class="group-badge">المجموعة ج</span></td>
+              <td class="cell-team1">تاسع 5</td>
+              <td class="cell-score"><span class="match-score-cell">- : -</span></td>
+              <td class="cell-team2">سابع 5</td>
+            </tr>
+            <tr data-group="د" data-team1="ثامن 4" data-team2="تاسع 8">
+              <td class="cell-meta"><span>الخميس 19/11/2026</span><span class="group-badge">مجموعة د · ج1</span></td>
+              <td class="d-none-mobile"><span class="group-badge">المجموعة د</span></td>
+              <td class="cell-team1">ثامن 4</td>
+              <td class="cell-score"><span class="match-score-cell">- : -</span></td>
+              <td class="cell-team2">تاسع 8</td>
+            </tr>
+            <tr data-group="د" data-team1="سابع 8" data-team2="تاسع 6">
+              <td class="cell-meta"><span>الأحد 22/11/2026</span><span class="group-badge">مجموعة د · ج1</span></td>
+              <td class="d-none-mobile"><span class="group-badge">المجموعة د</span></td>
+              <td class="cell-team1">سابع 8</td>
+              <td class="cell-score"><span class="match-score-cell">- : -</span></td>
+              <td class="cell-team2">تاسع 6</td>
+            </tr>
+
+            <!-- الجولة 2 -->
+            <tr data-group="أ" data-team1="ثامن 5" data-team2="سابع 4">
+              <td class="cell-meta"><span>الاثنين 23/11/2026</span><span class="group-badge">مجموعة أ · ج2</span></td>
+              <td class="d-none-mobile"><span class="group-badge">المجموعة أ</span></td>
+              <td class="cell-team1">ثامن 5</td>
+              <td class="cell-score"><span class="match-score-cell">- : -</span></td>
+              <td class="cell-team2">سابع 4</td>
+            </tr>
+            <tr data-group="أ" data-team1="تاسع 7" data-team2="تاسع 1">
+              <td class="cell-meta"><span>الثلاثاء 24/11/2026</span><span class="group-badge">مجموعة أ · ج2</span></td>
+              <td class="d-none-mobile"><span class="group-badge">المجموعة أ</span></td>
+              <td class="cell-team1">تاسع 7</td>
+              <td class="cell-score"><span class="match-score-cell">- : -</span></td>
+              <td class="cell-team2">تاسع 1</td>
+            </tr>
+            <tr data-group="ب" data-team1="سابع 7" data-team2="ثامن 2">
+              <td class="cell-meta"><span>الأربعاء 25/11/2026</span><span class="group-badge">مجموعة ب · ج2</span></td>
+              <td class="d-none-mobile"><span class="group-badge">المجموعة ب</span></td>
+              <td class="cell-team1">سابع 7</td>
+              <td class="cell-score"><span class="match-score-cell">- : -</span></td>
+              <td class="cell-team2">ثامن 2</td>
+            </tr>
+            <tr data-group="ب" data-team1="سابع 1" data-team2="سابع 9">
+              <td class="cell-meta"><span>الخميس 26/11/2026</span><span class="group-badge">مجموعة ب · ج2</span></td>
+              <td class="d-none-mobile"><span class="group-badge">المجموعة ب</span></td>
+              <td class="cell-team1">سابع 1</td>
+              <td class="cell-score"><span class="match-score-cell">- : -</span></td>
+              <td class="cell-team2">سابع 9</td>
+            </tr>
+            <tr data-group="ج" data-team1="ثامن 3" data-team2="تاسع 5">
+              <td class="cell-meta"><span>الأحد 29/11/2026</span><span class="group-badge">مجموعة ج · ج2</span></td>
+              <td class="d-none-mobile"><span class="group-badge">المجموعة ج</span></td>
+              <td class="cell-team1">ثامن 3</td>
+              <td class="cell-score"><span class="match-score-cell">- : -</span></td>
+              <td class="cell-team2">تاسع 5</td>
+            </tr>
+            <tr data-group="ج" data-team1="سابع 3" data-team2="تاسع 4">
+              <td class="cell-meta"><span>الاثنين 30/11/2026</span><span class="group-badge">مجموعة ج · ج2</span></td>
+              <td class="d-none-mobile"><span class="group-badge">المجموعة ج</span></td>
+              <td class="cell-team1">سابع 3</td>
+              <td class="cell-score"><span class="match-score-cell">- : -</span></td>
+              <td class="cell-team2">تاسع 4</td>
+            </tr>
+            <tr data-group="د" data-team1="ثامن 4" data-team2="سابع 8">
+              <td class="cell-meta"><span>الثلاثاء 01/12/2026</span><span class="group-badge">مجموعة د · ج2</span></td>
+              <td class="d-none-mobile"><span class="group-badge">المجموعة د</span></td>
+              <td class="cell-team1">ثامن 4</td>
+              <td class="cell-score"><span class="match-score-cell">- : -</span></td>
+              <td class="cell-team2">سابع 8</td>
+            </tr>
+            <tr data-group="د" data-team1="تاسع 8" data-team2="تاسع 6">
+              <td class="cell-meta"><span>الأربعاء 02/12/2026</span><span class="group-badge">مجموعة د · ج2</span></td>
+              <td class="d-none-mobile"><span class="group-badge">المجموعة د</span></td>
+              <td class="cell-team1">تاسع 8</td>
+              <td class="cell-score"><span class="match-score-cell">- : -</span></td>
+              <td class="cell-team2">تاسع 6</td>
+            </tr>
+
+            <!-- الجولة 3 -->
+            <tr data-group="أ" data-team1="ثامن 5" data-team2="سابع 2">
+              <td class="cell-meta"><span>الخميس 03/12/2026</span><span class="group-badge">مجموعة أ · ج3</span></td>
+              <td class="d-none-mobile"><span class="group-badge">المجموعة أ</span></td>
+              <td class="cell-team1">ثامن 5</td>
+              <td class="cell-score"><span class="match-score-cell">- : -</span></td>
+              <td class="cell-team2">سابع 2</td>
+            </tr>
+            <tr data-group="أ" data-team1="سابع 4" data-team2="تاسع 1">
+              <td class="cell-meta"><span>الأحد 06/12/2026</span><span class="group-badge">مجموعة أ · ج3</span></td>
+              <td class="d-none-mobile"><span class="group-badge">المجموعة أ</span></td>
+              <td class="cell-team1">سابع 4</td>
+              <td class="cell-score"><span class="match-score-cell">- : -</span></td>
+              <td class="cell-team2">تاسع 1</td>
+            </tr>
+            <tr data-group="ب" data-team1="سابع 7" data-team2="سابع 6">
+              <td class="cell-meta"><span>الاثنين 07/12/2026</span><span class="group-badge">مجموعة ب · ج3</span></td>
+              <td class="d-none-mobile"><span class="group-badge">المجموعة ب</span></td>
+              <td class="cell-team1">سابع 7</td>
+              <td class="cell-score"><span class="match-score-cell">- : -</span></td>
+              <td class="cell-team2">سابع 6</td>
+            </tr>
+            <tr data-group="ب" data-team1="ثامن 2" data-team2="سابع 9">
+              <td class="cell-meta"><span>الثلاثاء 08/12/2026</span><span class="group-badge">مجموعة ب · ج3</span></td>
+              <td class="d-none-mobile"><span class="group-badge">المجموعة ب</span></td>
+              <td class="cell-team1">ثامن 2</td>
+              <td class="cell-score"><span class="match-score-cell">- : -</span></td>
+              <td class="cell-team2">سابع 9</td>
+            </tr>
+            <tr data-group="ج" data-team1="ثامن 3" data-team2="سابع 5">
+              <td class="cell-meta"><span>الأربعاء 09/12/2026</span><span class="group-badge">مجموعة ج · ج3</span></td>
+              <td class="d-none-mobile"><span class="group-badge">المجموعة ج</span></td>
+              <td class="cell-team1">ثامن 3</td>
+              <td class="cell-score"><span class="match-score-cell">- : -</span></td>
+              <td class="cell-team2">سابع 5</td>
+            </tr>
+            <tr data-group="ج" data-team1="تاسع 5" data-team2="تاسع 4">
+              <td class="cell-meta"><span>الخميس 10/12/2026</span><span class="group-badge">مجموعة ج · ج3</span></td>
+              <td class="d-none-mobile"><span class="group-badge">المجموعة ج</span></td>
+              <td class="cell-team1">تاسع 5</td>
+              <td class="cell-score"><span class="match-score-cell">- : -</span></td>
+              <td class="cell-team2">تاسع 4</td>
+            </tr>
+            <tr data-group="د" data-team1="ثامن 4" data-team2="تاسع 6">
+              <td class="cell-meta"><span>الأحد 13/12/2026</span><span class="group-badge">مجموعة د · ج3</span></td>
+              <td class="d-none-mobile"><span class="group-badge">المجموعة د</span></td>
+              <td class="cell-team1">ثامن 4</td>
+              <td class="cell-score"><span class="match-score-cell">- : -</span></td>
+              <td class="cell-team2">تاسع 6</td>
+            </tr>
+            <tr data-group="د" data-team1="تاسع 8" data-team2="سابع 8">
+              <td class="cell-meta"><span>الاثنين 14/12/2026</span><span class="group-badge">مجموعة د · ج3</span></td>
+              <td class="d-none-mobile"><span class="group-badge">المجموعة د</span></td>
+              <td class="cell-team1">تاسع 8</td>
+              <td class="cell-score"><span class="match-score-cell">- : -</span></td>
+              <td class="cell-team2">سابع 8</td>
+            </tr>
+
+            <!-- الجولة 4 -->
+            <tr data-group="أ" data-team1="ثامن 5" data-team2="تاسع 1">
+              <td class="cell-meta"><span>الثلاثاء 15/12/2026</span><span class="group-badge">مجموعة أ · ج4</span></td>
+              <td class="d-none-mobile"><span class="group-badge">المجموعة أ</span></td>
+              <td class="cell-team1">ثامن 5</td>
+              <td class="cell-score"><span class="match-score-cell">- : -</span></td>
+              <td class="cell-team2">تاسع 1</td>
+            </tr>
+            <tr data-group="أ" data-team1="تاسع 7" data-team2="سابع 2">
+              <td class="cell-meta"><span>الأربعاء 16/12/2026</span><span class="group-badge">مجموعة أ · ج4</span></td>
+              <td class="d-none-mobile"><span class="group-badge">المجموعة أ</span></td>
+              <td class="cell-team1">تاسع 7</td>
+              <td class="cell-score"><span class="match-score-cell">- : -</span></td>
+              <td class="cell-team2">سابع 2</td>
+            </tr>
+            <tr data-group="ب" data-team1="سابع 7" data-team2="سابع 9">
+              <td class="cell-meta"><span>الخميس 17/12/2026</span><span class="group-badge">مجموعة ب · ج4</span></td>
+              <td class="d-none-mobile"><span class="group-badge">المجموعة ب</span></td>
+              <td class="cell-team1">سابع 7</td>
+              <td class="cell-score"><span class="match-score-cell">- : -</span></td>
+              <td class="cell-team2">سابع 9</td>
+            </tr>
+            <tr data-group="ب" data-team1="سابع 1" data-team2="سابع 6">
+              <td class="cell-meta"><span>الأحد 20/12/2026</span><span class="group-badge">مجموعة ب · ج4</span></td>
+              <td class="d-none-mobile"><span class="group-badge">المجموعة ب</span></td>
+              <td class="cell-team1">سابع 1</td>
+              <td class="cell-score"><span class="match-score-cell">- : -</span></td>
+              <td class="cell-team2">سابع 6</td>
+            </tr>
+            <tr data-group="ج" data-team1="ثامن 3" data-team2="تاسع 4">
+              <td class="cell-meta"><span>الاثنين 21/12/2026</span><span class="group-badge">مجموعة ج · ج4</span></td>
+              <td class="d-none-mobile"><span class="group-badge">المجموعة ج</span></td>
+              <td class="cell-team1">ثامن 3</td>
+              <td class="cell-score"><span class="match-score-cell">- : -</span></td>
+              <td class="cell-team2">تاسع 4</td>
+            </tr>
+            <tr data-group="ج" data-team1="سابع 3" data-team2="سابع 5">
+              <td class="cell-meta"><span>الثلاثاء 22/12/2026</span><span class="group-badge">مجموعة ج · ج4</span></td>
+              <td class="d-none-mobile"><span class="group-badge">المجموعة ج</span></td>
+              <td class="cell-team1">سابع 3</td>
+              <td class="cell-score"><span class="match-score-cell">- : -</span></td>
+              <td class="cell-team2">سابع 5</td>
+            </tr>
+
+            <!-- الجولة 5 (بعد عطلة الشتاء 23/12/2026 - 09/01/2027) -->
+            <tr data-group="أ" data-team1="تاسع 7" data-team2="سابع 4">
+              <td class="cell-meta"><span>الأحد 10/01/2027</span><span class="group-badge">مجموعة أ · ج5</span></td>
+              <td class="d-none-mobile"><span class="group-badge">المجموعة أ</span></td>
+              <td class="cell-team1">تاسع 7</td>
+              <td class="cell-score"><span class="match-score-cell">- : -</span></td>
+              <td class="cell-team2">سابع 4</td>
+            </tr>
+            <tr data-group="أ" data-team1="سابع 2" data-team2="تاسع 1">
+              <td class="cell-meta"><span>الاثنين 11/01/2027</span><span class="group-badge">مجموعة أ · ج5</span></td>
+              <td class="d-none-mobile"><span class="group-badge">المجموعة أ</span></td>
+              <td class="cell-team1">سابع 2</td>
+              <td class="cell-score"><span class="match-score-cell">- : -</span></td>
+              <td class="cell-team2">تاسع 1</td>
+            </tr>
+            <tr data-group="ب" data-team1="سابع 1" data-team2="ثامن 2">
+              <td class="cell-meta"><span>الثلاثاء 12/01/2027</span><span class="group-badge">مجموعة ب · ج5</span></td>
+              <td class="d-none-mobile"><span class="group-badge">المجموعة ب</span></td>
+              <td class="cell-team1">سابع 1</td>
+              <td class="cell-score"><span class="match-score-cell">- : -</span></td>
+              <td class="cell-team2">ثامن 2</td>
+            </tr>
+            <tr data-group="ب" data-team1="سابع 6" data-team2="سابع 9">
+              <td class="cell-meta"><span>الأربعاء 13/01/2027</span><span class="group-badge">مجموعة ب · ج5</span></td>
+              <td class="d-none-mobile"><span class="group-badge">المجموعة ب</span></td>
+              <td class="cell-team1">سابع 6</td>
+              <td class="cell-score"><span class="match-score-cell">- : -</span></td>
+              <td class="cell-team2">سابع 9</td>
+            </tr>
+            <tr data-group="ج" data-team1="سابع 3" data-team2="تاسع 5">
+              <td class="cell-meta"><span>الخميس 14/01/2027</span><span class="group-badge">مجموعة ج · ج5</span></td>
+              <td class="d-none-mobile"><span class="group-badge">المجموعة ج</span></td>
+              <td class="cell-team1">سابع 3</td>
+              <td class="cell-score"><span class="match-score-cell">- : -</span></td>
+              <td class="cell-team2">تاسع 5</td>
+            </tr>
+            <tr data-group="ج" data-team1="سابع 5" data-team2="تاسع 4">
+              <td class="cell-meta"><span>الأحد 17/01/2027</span><span class="group-badge">مجموعة ج · ج5</span></td>
+              <td class="d-none-mobile"><span class="group-badge">المجموعة ج</span></td>
+              <td class="cell-team1">سابع 5</td>
+              <td class="cell-score"><span class="match-score-cell">- : -</span></td>
+              <td class="cell-team2">تاسع 4</td>
+            </tr>
           </tbody>
         </table>
+
+        <!-- حالات الواجهة: التحميل، الخطأ، وعدم وجود نتائج (R-27) -->
+        <div class="empty-state-box" id="schedule-loading-state" role="status" aria-live="polite" hidden>
+          <p>جاري تحديث جدول المباريات وحساب نقاط المجموعات...</p>
+        </div>
+
+        <div class="empty-state-box" id="schedule-error-state" role="alert" hidden>
+          <p id="schedule-error-text">تعذر قراءة نتيجة إحدى المباريات. تأكد من كتابة النتيجة بصيغة أرقام صحيحة مثل 2-1 أو اتركها - : - للمباريات التي لم تلعب بعد.</p>
+        </div>
+
+        <div class="empty-state-box" id="schedule-empty-state" role="status" aria-live="polite" hidden>
+          <p id="schedule-empty-text">لا توجد مباريات مطابقة للبحث الحالي. جرّب البحث باسم صف آخر أو عرض جميع المجموعات.</p>
+          <button type="button" class="reset-btn" id="reset-filters-btn">إظهار كل المباريات (36)</button>
+        </div>
       </div>
-    </div>
-  </div>
-</div>
+    </section>
 
-
-
-
-      <!-- الهدافون -->
-      <div class="col-12 col-lg-6">
-        <div class="card h-100">
-          <div class="card-body">
-            <h5 class="card-title">الهدّافون</h5>
-            <div class="table-responsive">
-              <table class="table table-sm">
-                <thead>
-                  <tr>
-                    <th>#</th>
-                    <th>اللاعب</th>
-                    <th>الفريق</th>
-                    <th class="text-center">أهداف</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <!-- ✏️ عدّل/أضِف صفوفًا للهدافين -->
-                  <tr><td>1</td><td> محمد ابو مديغم</td><td>ابو بكر\الغزالي</td><td class="text-center fw-bold">7</td></tr>
-                  <tr><td>2</td><td>محمد العبره</td><td>الجوري</td><td class="text-center fw-bold">6</td></tr>
-                  <tr><td>3</td><td>عيد ابو قديري </td><td>الفرابي</td><td class="text-center fw-bold">5</td></tr>
-                  <tr><td>4</td><td> حسين الجبور </td><td>السوسن</td><td class="text-center fw-bold">3</td></tr>
-                  <tr><td>5</td><td>زكريا العبره</td><td>الاحسان</td><td class="text-center fw-bold">3</td></tr>
-                  <tr><td>6</td><td>سالم الجبور</td><td>الريحان</td><td class="text-center fw-bold">3</td></tr>
-                  <tr><td>7</td><td>مويد العبره   </td><td>ابو بكر\الغزالي</td><td class="text-center fw-bold">3</td></tr>
-                  <tr><td>8</td><td>حسن الجبور</td><td>القرنفل</td><td class="text-center fw-bold">3</td></tr>
-                  <tr><td>9</td><td> عصام ابو جراد </td><td>الزنبق</td><td class="text-center fw-bold">3</td></tr>
-                  <tr><td>10</td><td>عيسى اسماعيل ابو مديغم</td><td>الريحان</td><td class="text-center fw-bold">3</td></tr>
-                  <tr><td>11</td><td>الياس العمراني   </td><td>ابو بكر\الغزالي</td><td class="text-center fw-bold">3</td></tr>
-                   <tr><td>12</td><td>محمد الجبور </td><td>الفرابي</td><td class="text-center fw-bold">2</td></tr>
-                  <tr><td>13</td><td> شريف العبره </td><td>السوسن</td><td class="text-center fw-bold">2</td></tr>
-                  <tr><td>14</td><td>اسماعيل ابو مديغم</td><td>السوسن</td><td class="text-center fw-bold">2</td></tr>
-                  
-                  <tr><td>15</td><td>اسماعيل ابو موسى</td><td>الاحسان</td><td class="text-center fw-bold">1</td></tr>
-                  <tr><td>16</td><td>عيد ابو مديغم</td><td>الاحسان</td><td class="text-center fw-bold">1</td></tr>
-                  <tr><td>17</td><td> سعيد الجبور </td><td>السوسن</td><td class="text-center fw-bold">1</td></tr>
-                  <tr><td>18</td><td>مامون ابو حامد</td><td>الزنبق</td><td class="text-center fw-bold">1</td></tr>
-                  <tr><td>19</td><td>عمر الجبور</td><td>النور</td><td class="text-center fw-bold">1</td></tr>
-                  <tr><td>20</td><td>شاكر ابو زايد </td><td>النور</td><td class="text-center fw-bold">1</td></tr>
-                  <tr><td>21</td><td>محمد العمور </td><td>الاعتصام</td><td class="text-center fw-bold">1</td></tr>
-                   <tr><td>22</td><td>محمد الرميلي </td><td>الاحسان</td><td class="text-center fw-bold">1</td></tr>
-                  <tr><td>23</td><td>عصام الجعار  </td><td>الفرابي</td><td class="text-center fw-bold">1</td></tr>
-                  <tr><td>24</td><td>ادم ابو حامد </td><td>ابو بكر\الغزالي</td><td class="text-center fw-bold">1</td></tr>
-                  <tr><td>25</td><td>محمد  عمراني</td><td>الزنبق</td><td class="text-center fw-bold">1</td></tr>
-                  <tr><td>26</td><td>محمد الرميلي</td><td>ابن رشد</td><td class="text-center fw-bold">1</td></tr>
-                  <tr><td>27</td><td>ادم العبره</td><td>الجوري</td><td class="text-center fw-bold">1</td></tr>
-                  <tr><td>28</td><td>موسى العبره</td><td>ابن رشد</td><td class="text-center fw-bold">1</td></tr>
-                  <tr><td>29</td><td>قيس ابو مديغم</td><td>ابن رشد</td><td class="text-center fw-bold">1</td></tr>
-                  <tr><td>30</td><td> امجد ابو جعفر </td><td>الاعتصام</td><td class="text-center fw-bold">1</td></tr>
-                  <tr><td>31</td><td>عثمان ابو دقش</td><td>القرنفل</td><td class="text-center fw-bold">1</td></tr>
-                  <tr><td>32</td><td>عيسى سليم ابو مديغم</td><td>الريحان</td><td class="text-center fw-bold">1</td></tr>
-                   <tr><td>33</td><td>احمد الرميلي </td><td>القرنفل</td><td class="text-center fw-bold">1</td></tr>
-                  <tr><td>34</td><td>زيد العبره</td><td>الجوري</td><td class="text-center fw-bold">1</td></tr>
-                  
-                  
-                  <!-- ... -->
-                </tbody>
-              </table>
-            </div>
-          </div>
+    <!-- 3. الإحصائيات والانضباط: الهدافون، صناع الأهداف، البطاقات الصفراء، البطاقات الحمراء -->
+    <section class="section-block" id="stats-section" aria-labelledby="stats-main-title">
+      <div class="section-header">
+        <div>
+          <h2 class="section-title" id="stats-main-title">سجل الهدافين والتمريرات والبطاقات الملونة</h2>
+          <p class="section-subtitle">يتم تحديث قوائم الأهداف والتمريرات الحاسمة والبطاقات الصفراء والحمراء بعد كل مباراة</p>
         </div>
       </div>
 
-      <!-- صنّاع الأهداف -->
-      <div class="col-12 col-lg-6">
-        <div class="card h-100">
-          <div class="card-body">
-            <h5 class="card-title">صنّاع الأهداف</h5>
-            <div class="table-responsive">
-              <table class="table table-sm">
-                <thead>
-                  <tr>
-                    <th>#</th>
-                    <th>اللاعب</th>
-                    <th>الفريق</th>
-                    <th class="text-center">تمريرات حاسمة</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <!-- ✏️ عدّل/أضِف صفوفًا لصُنّاع الأهداف -->
-                  <tr><td>1</td><td>محمد الجبور </td><td>الفرابي</td><td class="text-center fw-bold">3</td></tr>
-                  <tr><td>2</td></td><td>حسين الجبور</td><td>السوسن</td><td class="text-center fw-bold">3</td></tr>
-                <tr><td>3</td><td>مويد العبره   </td><td>ابو بكر\الغزالي</td><td class="text-center fw-bold">3</td></tr>
-                  <tr><td>4</td><td>سالم الجبور</td><td>الريحان</td><td class="text-center fw-bold">3</td></tr>
-                  <tr><td>5</td><td>محمد العبره</td><td>النور</td><td class="text-center fw-bold">2</td></tr>
-                  <tr><td>6</td><td>عصام الجعار  </td><td>الفرابي</td><td class="text-center fw-bold">2</td></tr>
-                <tr><td>7</td><td> محمد ابو مديغم</td><td>ابو بكر\الغزالي</td><td class="text-center fw-bold">2</td></tr>
-                  <tr><td>8</td><td>محمد العبره</td><td>الاحسان</td><td class="text-center fw-bold">2</td></tr>
-                <tr><td>9</td><td>زيد العبره</td><td>الجوري</td><td class="text-center fw-bold">2</td></tr>
-                <tr><td>10</td><td>محمد الرميلي</td><td>ابن رشد</td><td class="text-center fw-bold">2</td></tr>
-                <tr><td>11</td><td>عاصم العبره</td><td>الجوري</td><td class="text-center fw-bold">2</td></tr>
-                <tr><td>12</td><td>محمد  عمراني</td><td>الزنبق</td><td class="text-center fw-bold">2</td></tr>
-                  <tr><td>13</td><td>اسماعيل ابو موسى</td><td>الاحسان</td><td class="text-center fw-bold">1</td></tr>
-                  <tr><td>14</td><td>عيسى ابو مديغم</td><td>الاحسان</td><td class="text-center fw-bold">1</td></tr>
-                  <tr><td>15</td><td>ادم العبره </td><td>الجوري</td><td class="text-center fw-bold">1</td></tr>
-                  <tr><td>16</td><td> عصام ابو جراد </td><td>الزنبق</td><td class="text-center fw-bold">1</td></tr>
-                  <tr><td>17</td><td>زكريا العبره</td><td>الاحسان</td><td class="text-center fw-bold">1</td></tr>
-                  <tr><td>18</td></td><td>سلمان ابو موسى </td><td>القرنفل</td><td class="text-center fw-bold">1</td></tr>
-                <tr><td>19</td><td> شريف العبره </td><td>السوسن</td><td class="text-center fw-bold">1</td></tr>
-                <tr><td>20</td><td>اسماعيل ابو مديغم</td><td>السوسن</td><td class="text-center fw-bold">1</td></tr>
-                <tr><td>21</td><td>عيسى اسماعيل ابو مديغم</td><td>الريحان</td><td class="text-center fw-bold">1</td></tr>
-                <tr><td>22</td><td>عيسى سليم ابو مديغم</td><td>الريحان</td><td class="text-center fw-bold">1</td></tr>
-                <tr><td>23</td><td>يوسف الصانع</td><td>الريحان</td><td class="text-center fw-bold">1</td></tr>
-                <tr><td>24</td><td>محمد العبره</td><td>الجوري</td><td class="text-center fw-bold">1</td></tr>
-                
-                  <!-- ... -->
-                </tbody>
-              </table>
+      <div class="stats-grid">
+
+        <!-- الهدّافون (أهداف) -->
+        <article class="stat-card stat-card-goals" aria-labelledby="scorers-title">
+          <div class="stat-card-header">
+            <div class="stat-title-wrap">
+              <h3 class="stat-title" id="scorers-title">الهدّافون (الأهداف)</h3>
             </div>
+            <span class="group-count">أهداف المسجّلين</span>
           </div>
+          <table class="stat-table tabular">
+            <thead>
+              <tr>
+                <th scope="col">#</th>
+                <th scope="col">اللاعب</th>
+                <th scope="col">الصف / الفريق</th>
+                <th scope="col" class="text-center">أهداف</th>
+              </tr>
+            </thead>
+            <tbody>
+              <!-- لإضافة لاعب بعد المباراة: انسخ السطر التالي وعدّل الاسم والصف وعدد الأهداف
+              <tr><td>1</td><td>اسم الطالب</td><td>سابع 4</td><td class="text-center"><strong>1</strong></td></tr>
+              -->
+              <tr>
+                <td colspan="4" class="text-center" style="padding: 1.25rem; color: var(--text-secondary);">
+                  لم تسجل أهداف بعد. تبدأ المباريات يوم الأربعاء 11/11/2026.
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </article>
+
+        <!-- صنّاع الأهداف (التمريرات الحاسمة) -->
+        <article class="stat-card stat-card-assists" aria-labelledby="assists-title">
+          <div class="stat-card-header">
+            <div class="stat-title-wrap">
+              <h3 class="stat-title" id="assists-title">صنّاع الأهداف (التمريرات الحاسمة)</h3>
+            </div>
+            <span class="group-count">أسيست</span>
+          </div>
+          <table class="stat-table tabular">
+            <thead>
+              <tr>
+                <th scope="col">#</th>
+                <th scope="col">اللاعب</th>
+                <th scope="col">الصف / الفريق</th>
+                <th scope="col" class="text-center">تمريرات حاسمة</th>
+              </tr>
+            </thead>
+            <tbody>
+              <!-- لإضافة صانع أهداف: انسخ السطر التالي وعدّل الاسم والصف وعدد التمريرات
+              <tr><td>1</td><td>اسم الطالب</td><td>تاسع 7</td><td class="text-center"><strong>1</strong></td></tr>
+              -->
+              <tr>
+                <td colspan="4" class="text-center" style="padding: 1.25rem; color: var(--text-secondary);">
+                  لم تسجل تمريرات حاسمة بعد. تبدأ المباريات يوم الأربعاء 11/11/2026.
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </article>
+
+        <!-- البطاقات الصفراء -->
+        <article class="stat-card stat-card-yellow" aria-labelledby="yellow-cards-title">
+          <div class="stat-card-header">
+            <div class="stat-title-wrap">
+              <span class="card-rect-icon card-rect-yellow" aria-hidden="true"></span>
+              <h3 class="stat-title" id="yellow-cards-title">البطاقات الصفراء</h3>
+            </div>
+            <span class="discipline-pill-yellow">إنذار</span>
+          </div>
+          <table class="stat-table tabular">
+            <thead>
+              <tr>
+                <th scope="col">#</th>
+                <th scope="col">اللاعب</th>
+                <th scope="col">الصف / الفريق</th>
+                <th scope="col" class="text-center">بطاقات صفراء</th>
+              </tr>
+            </thead>
+            <tbody>
+              <!-- لإضافة بطاقة صفراء: انسخ السطر التالي وعدّل الاسم والصف والعدد
+              <tr><td>1</td><td>اسم الطالب</td><td>ثامن 5</td><td class="text-center"><span class="discipline-pill-yellow">1</span></td></tr>
+              -->
+              <tr>
+                <td colspan="4" class="text-center" style="padding: 1.25rem; color: var(--text-secondary);">
+                  السجل نظيف (0 بطاقات صفراء حتى الآن).
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </article>
+
+        <!-- البطاقات الحمراء -->
+        <article class="stat-card stat-card-red" aria-labelledby="red-cards-title">
+          <div class="stat-card-header">
+            <div class="stat-title-wrap">
+              <span class="card-rect-icon card-rect-red" aria-hidden="true"></span>
+              <h3 class="stat-title" id="red-cards-title">البطاقات الحمراء</h3>
+            </div>
+            <span class="discipline-pill-red">طرد</span>
+          </div>
+          <table class="stat-table tabular">
+            <thead>
+              <tr>
+                <th scope="col">#</th>
+                <th scope="col">اللاعب</th>
+                <th scope="col">الصف / الفريق</th>
+                <th scope="col" class="text-center">بطاقات حمراء</th>
+              </tr>
+            </thead>
+            <tbody>
+              <!-- لإضافة بطاقة حمراء: انسخ السطر التالي وعدّل الاسم والصف والعدد
+              <tr><td>1</td><td>اسم الطالب</td><td>سابع 1</td><td class="text-center"><span class="discipline-pill-red">1</span></td></tr>
+              -->
+              <tr>
+                <td colspan="4" class="text-center" style="padding: 1.25rem; color: var(--text-secondary);">
+                  السجل نظيف (0 بطاقات حمراء حتى الآن).
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </article>
+
+      </div>
+    </section>
+
+    <!-- 4. الأدوار الإقصائية (ربع النهائي، نصف النهائي، النهائي) -->
+    <section class="section-block" id="knockout-section" aria-labelledby="knockout-main-title">
+      <div class="section-header">
+        <div>
+          <h2 class="section-title" id="knockout-main-title">الأدوار الإقصائية (ما بعد المجموعات)</h2>
+          <p class="section-subtitle">يتأهل الأول والثاني من كل مجموعة (8 فرق) لخوض مباريات ربع النهائي بنظام خروج المغلوب</p>
         </div>
       </div>
 
-    </div>
+      <div class="knockout-grid tabular">
+
+        <!-- ربع النهائي -->
+        <div class="stage-column">
+          <div class="stage-header">
+            <h3 class="stage-title">ربع النهائي</h3>
+            <span class="stage-tag">8 فرق متأهلة</span>
+          </div>
+          <div class="bracket-list">
+            <div class="bracket-match">
+              <div class="bracket-match-top">
+                <span>ربع النهائي 1</span>
+                <span>الاثنين 18/01/2027</span>
+              </div>
+              <div class="bracket-teams">
+                <span id="qf1-t1">أول المجموعة أ</span>
+                <span class="bracket-score">- : -</span>
+                <span id="qf1-t2">ثاني المجموعة ب</span>
+              </div>
+            </div>
+
+            <div class="bracket-match">
+              <div class="bracket-match-top">
+                <span>ربع النهائي 2</span>
+                <span>الثلاثاء 19/01/2027</span>
+              </div>
+              <div class="bracket-teams">
+                <span id="qf2-t1">أول المجموعة ب</span>
+                <span class="bracket-score">- : -</span>
+                <span id="qf2-t2">ثاني المجموعة أ</span>
+              </div>
+            </div>
+
+            <div class="bracket-match">
+              <div class="bracket-match-top">
+                <span>ربع النهائي 3</span>
+                <span>الأربعاء 20/01/2027</span>
+              </div>
+              <div class="bracket-teams">
+                <span id="qf3-t1">أول المجموعة ج</span>
+                <span class="bracket-score">- : -</span>
+                <span id="qf3-t2">ثاني المجموعة د</span>
+              </div>
+            </div>
+
+            <div class="bracket-match">
+              <div class="bracket-match-top">
+                <span>ربع النهائي 4</span>
+                <span>الخميس 21/01/2027</span>
+              </div>
+              <div class="bracket-teams">
+                <span id="qf4-t1">أول المجموعة د</span>
+                <span class="bracket-score">- : -</span>
+                <span id="qf4-t2">ثاني المجموعة ج</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- نصف النهائي -->
+        <div class="stage-column">
+          <div class="stage-header">
+            <h3 class="stage-title">نصف النهائي</h3>
+            <span class="stage-tag">المربع الذهبي</span>
+          </div>
+          <div class="bracket-list">
+            <div class="bracket-match">
+              <div class="bracket-match-top">
+                <span>نصف النهائي 1</span>
+                <span>الأحد 24/01/2027</span>
+              </div>
+              <div class="bracket-teams">
+                <span>الفائز من ربع نهائي 1</span>
+                <span class="bracket-score">- : -</span>
+                <span>الفائز من ربع نهائي 3</span>
+              </div>
+            </div>
+
+            <div class="bracket-match">
+              <div class="bracket-match-top">
+                <span>نصف النهائي 2</span>
+                <span>الاثنين 25/01/2027</span>
+              </div>
+              <div class="bracket-teams">
+                <span>الفائز من ربع نهائي 2</span>
+                <span class="bracket-score">- : -</span>
+                <span>الفائز من ربع نهائي 4</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- النهائي -->
+        <div class="stage-column stage-column-final">
+          <div class="stage-header">
+            <h3 class="stage-title">المباراة النهائية</h3>
+            <span class="stage-tag stage-tag-gold">كأس البطولة</span>
+          </div>
+          <div class="bracket-list">
+            <div class="bracket-match">
+              <div class="bracket-match-top">
+                <span>نهائي دوري أبطال النور</span>
+                <span>الثلاثاء 26/01/2027</span>
+              </div>
+              <div class="bracket-teams">
+                <span>الفائز من نصف نهائي 1</span>
+                <span class="bracket-score">- : -</span>
+                <span>الفائز من نصف نهائي 2</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- 5. قوانين البطولة والانضباط المدرسي -->
+    <section class="section-block" id="rules-section" aria-labelledby="rules-main-title">
+      <div class="section-header">
+        <div>
+          <h2 class="section-title" id="rules-main-title">قوانين البطولة والانضباط المدرسي</h2>
+          <p class="section-subtitle">تعليمات ملزمة لجميع اللاعبين والصفوف المشاركة لضمان بطولة رياضية عادلة وآمنة</p>
+        </div>
+      </div>
+
+      <div class="rules-board-grid">
+
+        <!-- لائحة البطاقات والإيقافات -->
+        <article class="rules-panel rules-panel-cards" aria-labelledby="cards-rules-title">
+          <h3 class="rules-panel-title" id="cards-rules-title">
+            <span>لائحة البطاقات الملونة والإيقافات</span>
+            <span class="group-count">قوانين التحكيم</span>
+          </h3>
+
+          <div class="suspension-list">
+            <!-- 3 بطاقات صفراء في 3 مباريات مختلفة -->
+            <div class="suspension-item">
+              <div class="suspension-top">
+                <span class="cards-visual-group">
+                  <span class="card-rect-icon card-rect-yellow" aria-hidden="true"></span>
+                  <span class="card-rect-icon card-rect-yellow" aria-hidden="true"></span>
+                  <span class="card-rect-icon card-rect-yellow" aria-hidden="true"></span>
+                  <span style="margin-right: 0.35rem;">3 بطاقات صفراء (في 3 مباريات مختلفة)</span>
+                </span>
+                <span class="discipline-pill-yellow">إيقاف مباراة واحدة</span>
+              </div>
+              <p class="suspension-desc">
+                اللاعب الذي يتلقى 3 بطاقات صفراء متفرقة في 3 مباريات مختلفة يوقَف تلقائياً عن المشاركة في المباراة التالية لفريقه.
+              </p>
+            </div>
+
+            <!-- بطاقتان صفراوان في نفس المباراة -->
+            <div class="suspension-item">
+              <div class="suspension-top">
+                <span class="cards-visual-group">
+                  <span class="card-rect-icon card-rect-yellow" aria-hidden="true"></span>
+                  <span class="card-rect-icon card-rect-yellow" aria-hidden="true"></span>
+                  <span style="margin: 0 0.2rem;">=</span>
+                  <span class="card-rect-icon card-rect-red" aria-hidden="true"></span>
+                  <span style="margin-right: 0.35rem;">بطاقتان صفراوان في نفس المباراة (طرد غير مباشر)</span>
+                </span>
+                <span class="discipline-pill-yellow">إيقاف مباراة واحدة فقط</span>
+              </div>
+              <p class="suspension-desc">
+                اللاعب الذي يحصل على إنذارين (بطاقتين صفراوين) خلال نفس المباراة يُطرد بالبطاقة الحمراء، وتكون عقوبته الإيقاف لمباراة واحدة فقط تليها.
+              </p>
+            </div>
+
+            <!-- بطاقة حمراء مباشرة -->
+            <div class="suspension-item">
+              <div class="suspension-top">
+                <span class="cards-visual-group">
+                  <span class="card-rect-icon card-rect-red" aria-hidden="true"></span>
+                  <span style="margin-right: 0.35rem;">بطاقة حمراء مباشرة</span>
+                </span>
+                <span class="discipline-pill-red">إيقاف مباراتين (2)</span>
+              </div>
+              <p class="suspension-desc">
+                اللاعب الذي يُطرد ببطاقة حمراء مباشرة نتيجة سلوك غير رياضي أو تدخل عنيف يُحرم من المشاركة في المباراتين التاليتين لفريقه.
+              </p>
+            </div>
+          </div>
+        </article>
+
+        <!-- ميثاق السلوك والنظام المدرسي -->
+        <article class="rules-panel rules-panel-school" aria-labelledby="school-rules-title">
+          <h3 class="rules-panel-title" id="school-rules-title">
+            <span>قوانين المدرسة والروح الرياضية</span>
+            <span class="group-count">شروط المشاركة</span>
+          </h3>
+
+          <ol class="school-rules-list tabular">
+            <li class="school-rule-item">
+              <span class="school-rule-num">1</span>
+              <div>
+                <span class="school-rule-title">الزي الرياضي الإلزامي</span>
+                <p class="school-rule-text">يُشترط على كل طالب مشارك ارتداء ملابس رياضية كاملة وحذاء رياضي مناسب. لن يُسمح لأي طالب بدخول أرض الملعب بدون الزي الرياضي الكامل.</p>
+              </div>
+            </li>
+            <li class="school-rule-item">
+              <span class="school-rule-num">2</span>
+              <div>
+                <span class="school-rule-title">اللغة اللائقة والاحترام المتبادل</span>
+                <p class="school-rule-text">يجب التحلي بالأخلاق الرياضية والحفاظ على لغة نظيفة ولائقة طوال الوقت. يُمنع منعاً باتاً الشتم أو الصراخ أو الاستفزاز تجاه اللاعبين أو الجمهور أو المعلمين.</p>
+              </div>
+            </li>
+            <li class="school-rule-item">
+              <span class="school-rule-num">3</span>
+              <div>
+                <span class="school-rule-title">احترام قرارات الحكم واللجنة المنظمة</span>
+                <p class="school-rule-text">قرارات حكم المباراة نهائية داخل الملعب، ويُمنع الاعتراض غير اللائق على قرارات التحكيم تحت طائلة الإنذار أو الطرد المباشر.</p>
+              </div>
+            </li>
+            <li class="school-rule-item">
+              <span class="school-rule-num">4</span>
+              <div>
+                <span class="school-rule-title">الانضباط المدرسي والالتزام بالوقت</span>
+                <p class="school-rule-text">المشاركة في الدوري مشروطة بحسن السلوك والانضباط داخل الصفوف والمدرسة، وعلى الفرق التواجد في الملعب بالوقت المحدد قبل صافرة البداية.</p>
+              </div>
+            </li>
+          </ol>
+        </article>
+
+      </div>
+    </section>
+
   </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <p style="margin: 0;">دوري أبطال النور لكرة القدم · مدرسة النور الإعدادية رهط · الموسم الدراسي 2026-2027</p>
+    </div>
+  </footer>
+
+  <!-- شريط تنقل سفلي للهواتف المحمولة -->
+  <nav class="mobile-bottom-nav" aria-label="التنقل السريع للهاتف">
+    <a href="#groups-section" class="mobile-nav-item">المجموعات</a>
+    <a href="#schedule-section" class="mobile-nav-item">المباريات</a>
+    <a href="#stats-section" class="mobile-nav-item">الإحصائيات</a>
+    <a href="#knockout-section" class="mobile-nav-item">ربع النهائي</a>
+    <a href="#rules-section" class="mobile-nav-item">القوانين</a>
+  </nav>
+
+  <!-- نافذة تثبيت التطبيق على الهاتف (PWA) -->
+  <div class="modal-backdrop" id="install-modal" role="dialog" aria-modal="true" aria-labelledby="install-modal-title" hidden>
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h2 class="modal-title" id="install-modal-title">تثبيت دوري النور كتطبيق</h2>
+        <button type="button" class="modal-close-btn" id="close-install-modal-btn">إغلاق</button>
+      </div>
+      <p style="margin-top: 0; color: var(--text-secondary);">
+        يمكنك إضافة جدول الدوري كأيقونة تطبيق على شاشة هاتفك الرئيسية للوصول السريع للمباريات والترتيب:
+      </p>
+      <ol class="school-rules-list tabular">
+        <li class="school-rule-item">
+          <span class="school-rule-num">1</span>
+          <div>
+            <span class="school-rule-title">أجهزة آيفون (iPhone / Safari)</span>
+            <p class="school-rule-text">اضغط على زر المشاركة (Share) في أسفل المتصفح، ثم اختر "إضافة إلى الشاشة الرئيسية" (Add to Home Screen).</p>
+          </div>
+        </li>
+        <li class="school-rule-item">
+          <span class="school-rule-num">2</span>
+          <div>
+            <span class="school-rule-title">أجهزة أندرويد (Android / Chrome)</span>
+            <p class="school-rule-text">اضغط على قائمة المتصفح (الثلاث نقاط في الأعلى)، ثم اختر "تثبيت التطبيق" (Install App) أو "إضافة إلى الشاشة الرئيسية".</p>
+          </div>
+        </li>
+      </ol>
+    </div>
+  </div>
+
+  <!-- نافذة المشرف السرية (عدد الزيارات - خاصة بمنظم البطولة فقط) -->
+  <div class="modal-backdrop" id="admin-modal" role="dialog" aria-modal="true" aria-labelledby="admin-modal-title" hidden>
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h2 class="modal-title" id="admin-modal-title">لوحة المشرف (إحصائيات الزيارات)</h2>
+        <button type="button" class="modal-close-btn" id="close-admin-modal-btn">إغلاق</button>
+      </div>
+
+      <!-- نموذج رمز المرور للمشرف -->
+      <div id="admin-pin-view">
+        <p style="margin-top: 0; color: var(--text-secondary);">أدخل رمز المشرف لعرض عداد الزيارات الخاص بك:</p>
+        <form class="pin-form" id="admin-pin-form">
+          <input
+            type="password"
+            id="admin-pin-input"
+            class="search-input"
+            placeholder="رمز المشرف..."
+            aria-label="رمز المشرف"
+            autocomplete="off"
+            required
+          />
+          <button type="submit" class="install-btn">دخول</button>
+        </form>
+        <p id="admin-pin-error" role="alert" style="color: var(--red-card-text); background: var(--red-card-bg); padding: 0.45rem 0.75rem; border-radius: 6px; margin-top: 0.75rem; font-size: 0.88rem;" hidden>
+          رمز المشرف غير صحيح.
+        </p>
+      </div>
+
+      <!-- لوحة الإحصائيات بعد فتح القفل (حالات التحميل والخطأ والبيانات R-27) -->
+      <div id="admin-stats-view" hidden>
+        <p id="admin-counter-status" role="status" aria-live="polite" style="margin: 0 0 0.5rem 0; font-size: 0.88rem; color: var(--text-secondary);">
+          جاري جلب عدد الزيارات...
+        </p>
+        <div class="admin-stats-box tabular">
+          <div class="admin-stat-tile">
+            <span class="admin-stat-num" id="global-visits-val">...</span>
+            <span class="admin-stat-label">إجمالي زيارات الموقع</span>
+          </div>
+          <div class="admin-stat-tile">
+            <span class="admin-stat-num" id="local-visits-val">0</span>
+            <span class="admin-stat-label">زيارات هذا الجهاز</span>
+          </div>
+        </div>
+        <p id="last-visit-time" class="tabular" style="font-size: 0.84rem; color: var(--text-secondary); margin: 0 0 0.75rem 0;"></p>
+        <button type="button" class="reset-btn" id="refresh-counter-btn" style="width: 100%; margin-top: 0;">تحديث عداد الزيارات الآن</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      // 1. تسجيل Service Worker وتفعيل زر التثبيت كتطبيق (PWA)
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', function () {
+          navigator.serviceWorker.register('sw.js').catch(function () {});
+        });
+      }
+
+      var deferredInstallPrompt = null;
+      var installBtn = document.getElementById('install-app-btn');
+      var installModal = document.getElementById('install-modal');
+      var closeInstallModalBtn = document.getElementById('close-install-modal-btn');
+
+      window.addEventListener('beforeinstallprompt', function (e) {
+        e.preventDefault();
+        deferredInstallPrompt = e;
+      });
+
+      function openModal(modalEl) {
+        if (!modalEl) return;
+        modalEl.hidden = false;
+        var firstFocusable = modalEl.querySelector('input, button');
+        if (firstFocusable) firstFocusable.focus();
+      }
+
+      function closeModal(modalEl) {
+        if (!modalEl) return;
+        modalEl.hidden = true;
+      }
+
+      if (installBtn) {
+        installBtn.addEventListener('click', function () {
+          if (deferredInstallPrompt) {
+            deferredInstallPrompt.prompt();
+            deferredInstallPrompt.userChoice.finally(function () {
+              deferredInstallPrompt = null;
+            });
+          } else {
+            openModal(installModal);
+          }
+        });
+      }
+
+      if (closeInstallModalBtn) {
+        closeInstallModalBtn.addEventListener('click', function () {
+          closeModal(installModal);
+          if (installBtn) installBtn.focus();
+        });
+      }
+
+      // 2. عداد الزيارات الخاص بالمشرف فقط (PIN: 2026، أو 5 نقرات على الشعار، أو ?admin=1)
+      var ADMIN_PIN = '2026';
+      var COUNTER_API_UP = 'https://api.counterapi.dev/v1/alnoor_rahat_football_2026/visits/up';
+      var COUNTER_API_GET = 'https://api.counterapi.dev/v1/alnoor_rahat_football_2026/visits';
+
+      var adminModal = document.getElementById('admin-modal');
+      var closeAdminModalBtn = document.getElementById('close-admin-modal-btn');
+      var pinView = document.getElementById('admin-pin-view');
+      var statsView = document.getElementById('admin-stats-view');
+      var pinForm = document.getElementById('admin-pin-form');
+      var pinInput = document.getElementById('admin-pin-input');
+      var pinError = document.getElementById('admin-pin-error');
+      var globalVisitsEl = document.getElementById('global-visits-val');
+      var localVisitsEl = document.getElementById('local-visits-val');
+      var counterStatusEl = document.getElementById('admin-counter-status');
+      var lastVisitTimeEl = document.getElementById('last-visit-time');
+      var refreshCounterBtn = document.getElementById('refresh-counter-btn');
+
+      // تسجيل الزيارة عند فتح الصفحة مرة واحدة في كل جلسة تصفح
+      var localVisits = 1;
+      try {
+        var storedCount = parseInt(localStorage.getItem('alnoor_local_visits') || '0', 10);
+        if (!sessionStorage.getItem('alnoor_session_counted')) {
+          localVisits = storedCount + 1;
+          localStorage.setItem('alnoor_local_visits', String(localVisits));
+          localStorage.setItem('alnoor_last_visit', new Date().toLocaleString('ar-EG'));
+          sessionStorage.setItem('alnoor_session_counted', '1');
+          fetch(COUNTER_API_UP).then(function (r) { return r.json(); }).then(function (data) {
+            if (data && typeof data.count === 'number') {
+              localStorage.setItem('alnoor_cached_global_visits', String(data.count));
+            }
+          }).catch(function () {});
+        } else {
+          localVisits = storedCount || 1;
+        }
+      } catch (e) {}
+
+      function loadAdminCounter() {
+        if (localVisitsEl) localVisitsEl.textContent = String(localVisits);
+        try {
+          var lv = localStorage.getItem('alnoor_last_visit');
+          if (lv && lastVisitTimeEl) {
+            lastVisitTimeEl.textContent = 'آخر زيارة مسجلة على هذا الجهاز: ' + lv;
+          }
+        } catch (e) {}
+
+        if (counterStatusEl) {
+          counterStatusEl.textContent = 'جاري جلب إجمالي زيارات الموقع...';
+        }
+        if (globalVisitsEl) {
+          globalVisitsEl.textContent = '...';
+        }
+
+        fetch(COUNTER_API_GET)
+          .then(function (res) {
+            if (!res.ok) throw new Error('HTTP ' + res.status);
+            return res.json();
+          })
+          .then(function (data) {
+            var count = (data && typeof data.count === 'number') ? data.count : localVisits;
+            if (globalVisitsEl) globalVisitsEl.textContent = String(count);
+            if (counterStatusEl) counterStatusEl.textContent = 'البيانات محدّثة مباشرة من سجل زيارات الموقع.';
+            try { localStorage.setItem('alnoor_cached_global_visits', String(count)); } catch (e) {}
+          })
+          .catch(function () {
+            var cached = null;
+            try { cached = localStorage.getItem('alnoor_cached_global_visits'); } catch (e) {}
+            if (globalVisitsEl) globalVisitsEl.textContent = cached ? cached : String(localVisits);
+            if (counterStatusEl) {
+              counterStatusEl.textContent = 'تعذر الاتصال بخادم الإحصائيات حالياً؛ يتم عرض آخر قراءة محفوظة.';
+            }
+          });
+      }
+
+      function triggerAdminModal() {
+        var unlocked = false;
+        try { unlocked = sessionStorage.getItem('alnoor_admin_unlocked') === '1'; } catch (e) {}
+        if (unlocked) {
+          if (pinView) pinView.hidden = true;
+          if (statsView) statsView.hidden = false;
+          loadAdminCounter();
+        } else {
+          if (pinView) pinView.hidden = false;
+          if (statsView) statsView.hidden = true;
+          if (pinError) pinError.hidden = true;
+          if (pinInput) pinInput.value = '';
+        }
+        openModal(adminModal);
+      }
+
+      if (pinForm) {
+        pinForm.addEventListener('submit', function (e) {
+          e.preventDefault();
+          var val = (pinInput ? pinInput.value : '').trim();
+          if (val === ADMIN_PIN) {
+            try { sessionStorage.setItem('alnoor_admin_unlocked', '1'); } catch (err) {}
+            if (pinError) pinError.hidden = true;
+            if (pinView) pinView.hidden = true;
+            if (statsView) statsView.hidden = false;
+            loadAdminCounter();
+          } else {
+            if (pinError) pinError.hidden = false;
+          }
+        });
+      }
+
+      if (refreshCounterBtn) {
+        refreshCounterBtn.addEventListener('click', loadAdminCounter);
+      }
+
+      if (closeAdminModalBtn) {
+        closeAdminModalBtn.addEventListener('click', function () {
+          closeModal(adminModal);
+        });
+      }
+
+      // فتح لوحة المشرف عند النقر 5 مرات متتالية على شعار المدرسة أو عبر ?admin=1 أو Ctrl+Shift+A
+      var brandLogo = document.querySelector('.brand-logo');
+      var logoTapCount = 0;
+      var logoTapTimer = null;
+      if (brandLogo) {
+        brandLogo.addEventListener('click', function (e) {
+          logoTapCount++;
+          clearTimeout(logoTapTimer);
+          if (logoTapCount >= 5) {
+            e.preventDefault();
+            logoTapCount = 0;
+            triggerAdminModal();
+          } else {
+            logoTapTimer = setTimeout(function () { logoTapCount = 0; }, 1800);
+          }
+        });
+      }
+
+      if (window.location.search.indexOf('admin=1') !== -1 || window.location.hash === '#admin') {
+        triggerAdminModal();
+      }
+
+      // إغلاق النوافذ المنبثقة بزر Escape أو اختصار المشرف Ctrl+Shift+A (R-26, R-32)
+      document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape') {
+          if (installModal && !installModal.hidden) closeModal(installModal);
+          if (adminModal && !adminModal.hidden) closeModal(adminModal);
+        }
+        if (e.ctrlKey && e.shiftKey && (e.key === 'A' || e.key === 'a')) {
+          e.preventDefault();
+          triggerAdminModal();
+        }
+      });
+
+      [installModal, adminModal].forEach(function (modal) {
+        if (!modal) return;
+        modal.addEventListener('click', function (e) {
+          if (e.target === modal) closeModal(modal);
+        });
+      });
+
+      // 2. تصفية جدول المباريات حسب المجموعة والبحث عن الصف (R-26, R-27)
+      var filterButtons = document.querySelectorAll('[data-filter-group]');
+      var searchInput = document.getElementById('team-search-input');
+      var matchRows = document.querySelectorAll('#matches-tbody tr');
+      var emptyState = document.getElementById('schedule-empty-state');
+      var matchesTable = document.getElementById('matches-table');
+      var resetBtn = document.getElementById('reset-filters-btn');
+      var activeGroup = 'all';
+
+      function normalizeArabic(text) {
+        return (text || '').trim().replace(/\s+/g, ' ');
+      }
+
+      function filterMatches() {
+        var query = normalizeArabic(searchInput ? searchInput.value : '');
+        var visibleCount = 0;
+
+        for (var i = 0; i < matchRows.length; i++) {
+          var row = matchRows[i];
+          var rowGroup = row.getAttribute('data-group');
+          var t1 = row.getAttribute('data-team1') || '';
+          var t2 = row.getAttribute('data-team2') || '';
+          var dateText = row.textContent || '';
+
+          var matchesGroup = (activeGroup === 'all') || (rowGroup === activeGroup);
+          var matchesQuery = !query || t1.indexOf(query) !== -1 || t2.indexOf(query) !== -1 || dateText.indexOf(query) !== -1;
+
+          if (matchesGroup && matchesQuery) {
+            row.style.display = '';
+            visibleCount++;
+          } else {
+            row.style.display = 'none';
+          }
+        }
+
+        if (emptyState && matchesTable) {
+          if (visibleCount === 0) {
+            emptyState.hidden = false;
+            matchesTable.style.display = 'none';
+          } else {
+            emptyState.hidden = true;
+            matchesTable.style.display = '';
+          }
+        }
+      }
+
+      for (var b = 0; b < filterButtons.length; b++) {
+        filterButtons[b].addEventListener('click', function () {
+          activeGroup = this.getAttribute('data-filter-group') || 'all';
+          for (var j = 0; j < filterButtons.length; j++) {
+            filterButtons[j].setAttribute('aria-pressed', filterButtons[j] === this ? 'true' : 'false');
+          }
+          filterMatches();
+        });
+      }
+
+      if (searchInput) {
+        searchInput.addEventListener('input', filterMatches);
+      }
+
+      if (resetBtn) {
+        resetBtn.addEventListener('click', function () {
+          activeGroup = 'all';
+          if (searchInput) searchInput.value = '';
+          for (var j = 0; j < filterButtons.length; j++) {
+            var isAll = filterButtons[j].getAttribute('data-filter-group') === 'all';
+            filterButtons[j].setAttribute('aria-pressed', isAll ? 'true' : 'false');
+          }
+          filterMatches();
+        });
+      }
+
+      // 3. حساب جدول الترتيب تلقائياً عند إدخال أي نتيجة في جدول المباريات (مثال: 2-1 أو 2 : 1)
+      function recalculateStandings() {
+        var groupTeams = {
+          'أ': ['ثامن 5', 'تاسع 7', 'سابع 4', 'سابع 2', 'تاسع 1'],
+          'ب': ['سابع 7', 'سابع 1', 'ثامن 2', 'سابع 6', 'سابع 9'],
+          'ج': ['ثامن 3', 'سابع 3', 'تاسع 5', 'سابع 5', 'تاسع 4'],
+          'د': ['ثامن 4', 'تاسع 8', 'سابع 8', 'تاسع 6']
+        };
+
+        var stats = {};
+        Object.keys(groupTeams).forEach(function (g) {
+          stats[g] = {};
+          groupTeams[g].forEach(function (team, idx) {
+            stats[g][team] = { name: team, order: idx, p: 0, w: 0, d: 0, l: 0, gf: 0, ga: 0, gd: 0, pts: 0 };
+          });
+        });
+
+        var errorState = document.getElementById('schedule-error-state');
+        var errorText = document.getElementById('schedule-error-text');
+        var hasFormatError = false;
+
+        for (var i = 0; i < matchRows.length; i++) {
+          var row = matchRows[i];
+          var g = row.getAttribute('data-group');
+          var t1 = row.getAttribute('data-team1');
+          var t2 = row.getAttribute('data-team2');
+          var scoreEl = row.querySelector('.match-score-cell');
+          if (!scoreEl || !stats[g] || !stats[g][t1] || !stats[g][t2]) continue;
+
+          var raw = scoreEl.textContent.trim();
+          if (raw === '- : -' || raw === '-' || raw === '') continue;
+
+          var m = raw.match(/^(\d+)\s*[-:]\s*(\d+)$/);
+          if (!m) {
+            hasFormatError = true;
+            if (errorState && errorText) {
+              errorText.textContent = 'خطأ في صيغة النتيجة للمباراة (' + t1 + ' ضد ' + t2 + '): القيمة "' + raw + '" غير صالحة. يرجى كتابتها بصيغة رقمين مثل 2-1.';
+              errorState.hidden = false;
+            }
+            continue;
+          }
+
+          var s1 = parseInt(m[1], 10);
+          var s2 = parseInt(m[2], 10);
+
+          stats[g][t1].p += 1;
+          stats[g][t2].p += 1;
+          stats[g][t1].gf += s1;
+          stats[g][t1].ga += s2;
+          stats[g][t2].gf += s2;
+          stats[g][t2].ga += s1;
+
+          if (s1 > s2) {
+            stats[g][t1].w += 1;
+            stats[g][t1].pts += 3;
+            stats[g][t2].l += 1;
+          } else if (s2 > s1) {
+            stats[g][t2].w += 1;
+            stats[g][t2].pts += 3;
+            stats[g][t1].l += 1;
+          } else {
+            stats[g][t1].d += 1;
+            stats[g][t2].d += 1;
+            stats[g][t1].pts += 1;
+            stats[g][t2].pts += 1;
+          }
+        }
+
+        if (!hasFormatError && errorState) {
+          errorState.hidden = true;
+        }
+
+        Object.keys(groupTeams).forEach(function (g) {
+          var table = document.querySelector('[data-group-table="' + g + '"] tbody');
+          if (!table) return;
+
+          var list = Object.keys(stats[g]).map(function (k) {
+            var item = stats[g][k];
+            item.gd = item.gf - item.ga;
+            return item;
+          });
+
+          list.sort(function (a, b) {
+            if (b.pts !== a.pts) return b.pts - a.pts;
+            if (b.gd !== a.gd) return b.gd - a.gd;
+            if (b.gf !== a.gf) return b.gf - a.gf;
+            return a.order - b.order;
+          });
+
+          table.innerHTML = '';
+          list.forEach(function (item, idx) {
+            var tr = document.createElement('tr');
+            if (idx < 2) tr.className = 'qualifies-row';
+            var gdStr = item.gd > 0 ? '+' + item.gd : String(item.gd);
+            tr.innerHTML =
+              '<td><span class="rank-badge">' + (idx + 1) + '</span></td>' +
+              '<td class="col-team">' + item.name + '</td>' +
+              '<td>' + item.p + '</td>' +
+              '<td>' + item.w + '</td>' +
+              '<td>' + item.d + '</td>' +
+              '<td>' + item.l + '</td>' +
+              '<td>' + item.gf + '</td>' +
+              '<td>' + item.ga + '</td>' +
+              '<td>' + gdStr + '</td>' +
+              '<td><strong>' + item.pts + '</strong></td>';
+            table.appendChild(tr);
+          });
+        });
+      }
+
+      recalculateStandings();
+    })();
+  </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
