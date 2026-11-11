@@ -773,7 +773,10 @@
     }
 
     .match-score-cell {
-      display: inline-block;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.3rem;
       min-width: 64px;
       padding: 0.25rem 0.65rem;
       border-radius: 6px;
@@ -1227,17 +1230,17 @@
           </div>
         </div>
 
-        <div class="next-match-spotlight" aria-label="المباراة الافتتاحية">
+        <div class="next-match-spotlight" aria-label="المباراة القادمة ونتيجة الافتتاح">
           <div class="spotlight-label">
-            <span>المباراة الافتتاحية (المباراة 1)</span>
-            <span class="tabular">الأربعاء 11/11/2026</span>
+            <span>المباراة القادمة (المباراة 2)</span>
+            <span class="tabular">الخميس 12/11/2026</span>
           </div>
           <div class="spotlight-teams">
-            <span>ثامن 5</span>
+            <span>سابع 4</span>
             <span class="vs-pill">ضد</span>
-            <span>تاسع 7</span>
+            <span>سابع 2</span>
           </div>
-          <div class="section-subtitle">المجموعة أ · الجولة الأولى</div>
+          <div class="section-subtitle">المجموعة أ · نتيجة الافتتاح: فوز ثامن 5 على تاسع 7 (2-0)</div>
         </div>
       </div>
     </section>
@@ -1278,27 +1281,27 @@
               <tr class="qualifies-row">
                 <td><span class="rank-badge">1</span></td>
                 <td class="col-team">ثامن 5</td>
-                <td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td><strong>0</strong></td>
+                <td>1</td><td>1</td><td>0</td><td>0</td><td>2</td><td>0</td><td>+2</td><td><strong>3</strong></td>
               </tr>
               <tr class="qualifies-row">
                 <td><span class="rank-badge">2</span></td>
-                <td class="col-team">تاسع 7</td>
-                <td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td><strong>0</strong></td>
-              </tr>
-              <tr>
-                <td><span class="rank-badge">3</span></td>
                 <td class="col-team">سابع 4</td>
                 <td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td><strong>0</strong></td>
               </tr>
               <tr>
-                <td><span class="rank-badge">4</span></td>
+                <td><span class="rank-badge">3</span></td>
                 <td class="col-team">سابع 2</td>
                 <td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td><strong>0</strong></td>
               </tr>
               <tr>
-                <td><span class="rank-badge">5</span></td>
+                <td><span class="rank-badge">4</span></td>
                 <td class="col-team">تاسع 1</td>
                 <td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td><strong>0</strong></td>
+              </tr>
+              <tr>
+                <td><span class="rank-badge">5</span></td>
+                <td class="col-team">تاسع 7</td>
+                <td>1</td><td>0</td><td>0</td><td>1</td><td>0</td><td>2</td><td>-2</td><td><strong>0</strong></td>
               </tr>
             </tbody>
           </table>
@@ -1513,7 +1516,7 @@
               <td class="cell-meta"><span>الأربعاء 11/11/2026</span><span class="group-badge">مجموعة أ · ج1</span></td>
               <td class="d-none-mobile"><span class="group-badge">المجموعة أ</span></td>
               <td class="cell-team1">ثامن 5</td>
-              <td class="cell-score"><span class="match-score-cell">- : -</span></td>
+              <td class="cell-score"><span class="match-score-cell"><span>2</span><span>-</span><span>0</span></span></td>
               <td class="cell-team2">تاسع 7</td>
             </tr>
             <tr data-group="أ" data-team1="سابع 4" data-team2="سابع 2">
@@ -1821,9 +1824,16 @@
               <tr><td>1</td><td>اسم الطالب</td><td>سابع 4</td><td class="text-center"><strong>1</strong></td></tr>
               -->
               <tr>
-                <td colspan="4" class="text-center" style="padding: 1.25rem; color: var(--text-secondary);">
-                  لم تسجل أهداف بعد. تبدأ المباريات يوم الأربعاء 11/11/2026.
-                </td>
+                <td>1</td>
+                <td>امجد ابو جعفر</td>
+                <td>ثامن 5</td>
+                <td class="text-center"><strong>1</strong></td>
+              </tr>
+              <tr>
+                <td>2</td>
+                <td>كنان العبرة</td>
+                <td>ثامن 5</td>
+                <td class="text-center"><strong>1</strong></td>
               </tr>
             </tbody>
           </table>
@@ -1852,7 +1862,7 @@
               -->
               <tr>
                 <td colspan="4" class="text-center" style="padding: 1.25rem; color: var(--text-secondary);">
-                  لم تسجل تمريرات حاسمة بعد. تبدأ المباريات يوم الأربعاء 11/11/2026.
+                  لم تسجل تمريرات حاسمة حتى الآن.
                 </td>
               </tr>
             </tbody>
