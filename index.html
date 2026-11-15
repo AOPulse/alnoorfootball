@@ -13,10 +13,11 @@
 
   <!--
     Design Decisions Record (R-31):
-    - Design Read: school football tournament scoreboard & match center for middle-school students (Al-Noor Junior High, Rahat), in a broadcast-pitch scoreboard visual language, dial ENERGY 2 / RHYTHM 2 / MOTION 1.
+    - Design Read: school football tournament scoreboard & match center for middle-school students (Al-Noor Junior High, Rahat), in a broadcast-pitch scoreboard visual language, dial ENERGY 2 / RHYTHM 2 / MOTION 2.
     - Palette & Dark Theme (R-01, R-21, R-29): Derived from static/alnoor_logo.png: Al-Noor Navy (#0B132B / #131F3E) for floodlight scoreboard base (fixed dark theme per owner instruction), Pitch Green (#4ADE80 / #22C55E) for top-2 qualification & pitch identity, and Al-Noor Sun Gold (#FBBF24) as the single focal accent. Semantic referee card colors (#FEF08A/#713F12 yellow, #FEE2E2/#991B1B red) for disciplinary tables.
     - Typography (R-06): 'Cairo' & 'Tajawal' chosen for geometric Arabic sports broadcast legibility on mobile screens, paired with tabular numerals (tabular-nums) for aligned scores, dates, and standings columns.
-    - Layout & Rhythm (R-05, R-14): 5-section varied rhythm (RHYTHM 2): (1) Asymmetric tournament status banner, (2) 4-group standings grid with top-2 qualification markers, (3) Interactive filterable match schedule (mobile card list / desktop table), (4) 4-category player statistics & discipline center (Goals, Assists, Yellow Cards, Red Cards), (5) Quarter-Final to Final knockout bracket & 2-panel school rules board.
+    - Layout & Rhythm (R-05, R-14): 6-section varied rhythm (RHYTHM 2): (1) Asymmetric tournament status banner, (2) Animated Top Scorer & Top Playmaker broadcast showcase, (3) 4-group standings grid with top-2 qualification markers, (4) Interactive filterable match schedule (mobile card list / desktop table), (5) 4-category player statistics & discipline center (Goals, Assists, Yellow Cards, Red Cards), (6) Quarter-Final to Final knockout bracket & 2-panel school rules board.
+    - Motion & Choreography (R-19, MOTION 2): Purposeful sport-specific SVG entrance and replay animations on the Top Scorer card (ball-into-net arc + goal meter sweep) and Top Playmaker card (tactical pass trajectory draw across pitch), running once on load and replaying on user interaction, with prefers-reduced-motion support.
     - Mobile Reflow (R-03): 3-state responsive layout (phone <640px, tablet 640px-1023px, desktop >=1024px); schedule rows reflow into touch-friendly match cards on mobile with zero horizontal overflow and >=44px tap targets.
   -->
 
@@ -435,6 +436,291 @@
       border: 1px solid var(--border-color);
       font-size: 0.85rem;
       color: var(--accent-gold);
+    }
+
+    /* Top Scorer & Top Playmaker Broadcast Showcase (MOTION 2, R-19) */
+    .leaders-showcase {
+      margin-bottom: 2rem;
+    }
+
+    .leaders-topbar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+      margin-bottom: 0.85rem;
+    }
+
+    .replay-motion-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      min-height: 44px;
+      padding: 0.4rem 0.85rem;
+      border-radius: 8px;
+      background-color: var(--bg-surface);
+      color: var(--text-primary);
+      border: 1px solid var(--border-strong);
+      font-family: inherit;
+      font-size: 0.85rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .replay-motion-btn:hover {
+      border-color: var(--accent-gold);
+    }
+
+    .leaders-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1.15rem;
+    }
+
+    .leader-card {
+      position: relative;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 1rem;
+      align-items: center;
+      background-color: var(--bg-surface);
+      border: 1px solid var(--border-strong);
+      border-radius: 12px;
+      padding: 1.15rem 1.25rem;
+      text-decoration: none;
+      color: var(--text-primary);
+      overflow: hidden;
+      transition: transform 0.25s ease, border-color 0.25s ease;
+    }
+
+    .leader-card:hover,
+    .leader-card:focus-visible {
+      transform: translateY(-2px);
+    }
+
+    .leader-card-scorer {
+      border-top: 4px solid var(--accent-gold);
+    }
+
+    .leader-card-assist {
+      border-top: 4px solid var(--pitch-green-border);
+    }
+
+    /* Shimmer sweep across leader cards on entrance/replay */
+    .leader-card::after {
+      content: "";
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 45%;
+      background: linear-gradient(90deg, transparent, rgba(251, 191, 36, 0.12), transparent);
+      transform: translateX(220%) skewX(-18deg);
+      pointer-events: none;
+    }
+
+    .leader-card-assist::after {
+      background: linear-gradient(90deg, transparent, rgba(74, 222, 128, 0.12), transparent);
+    }
+
+    .animate-leaders .leader-card::after,
+    .leader-card:hover::after {
+      animation: cardSweep 1.1s cubic-bezier(0.22, 1, 0.36, 1) 1 forwards;
+    }
+
+    .leader-eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-size: 0.84rem;
+      font-weight: 800;
+      margin-bottom: 0.3rem;
+    }
+
+    .leader-eyebrow-gold {
+      color: var(--accent-gold);
+    }
+
+    .leader-eyebrow-green {
+      color: var(--pitch-green);
+    }
+
+    .leader-player-name {
+      font-family: 'Cairo', sans-serif;
+      font-size: clamp(1.35rem, 1.15rem + 0.8vw, 1.75rem);
+      font-weight: 800;
+      line-height: 1.2;
+      margin-bottom: 0.4rem;
+      display: block;
+    }
+
+    .animate-leaders .leader-player-name {
+      animation: nameSlideIn 0.65s cubic-bezier(0.16, 1, 0.3, 1) 1 both;
+    }
+
+    .leader-meta-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .leader-team-chip {
+      display: inline-block;
+      padding: 0.2rem 0.65rem;
+      border-radius: 6px;
+      background-color: var(--bg-subtle);
+      border: 1px solid var(--border-color);
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--text-secondary);
+    }
+
+    .leader-stat-pill-gold {
+      display: inline-block;
+      padding: 0.2rem 0.7rem;
+      border-radius: 6px;
+      background-color: var(--accent-gold);
+      color: var(--accent-gold-text);
+      font-size: 0.88rem;
+      font-weight: 800;
+    }
+
+    .leader-stat-pill-green {
+      display: inline-block;
+      padding: 0.2rem 0.7rem;
+      border-radius: 6px;
+      background-color: var(--pitch-green);
+      color: #0B132B;
+      font-size: 0.88rem;
+      font-weight: 800;
+    }
+
+    .leader-meter-track {
+      margin-top: 0.65rem;
+      height: 6px;
+      width: 100%;
+      max-width: 220px;
+      background-color: var(--bg-subtle);
+      border-radius: 4px;
+      overflow: hidden;
+      border: 1px solid var(--border-color);
+    }
+
+    .leader-meter-fill {
+      height: 100%;
+      width: 100%;
+      transform-origin: right center;
+    }
+
+    .leader-meter-fill-gold {
+      background-color: var(--accent-gold);
+    }
+
+    .leader-meter-fill-green {
+      background-color: var(--pitch-green);
+    }
+
+    .animate-leaders .leader-meter-fill {
+      animation: meterScaleIn 0.85s cubic-bezier(0.22, 1, 0.36, 1) 0.15s 1 both;
+    }
+
+    /* Choreographed SVG Stage for Goal Strike & Tactical Assist Pass */
+    .leader-stage-graphic {
+      width: 104px;
+      height: 86px;
+      background-color: var(--bg-subtle);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      position: relative;
+    }
+
+    .goal-arc-path {
+      stroke-dasharray: 90;
+      stroke-dashoffset: 90;
+    }
+
+    .animate-leaders .goal-arc-path,
+    .leader-card-scorer:hover .goal-arc-path {
+      animation: drawTrajectory 0.8s ease-out 0.15s 1 forwards;
+    }
+
+    .animate-leaders .goal-ball-node,
+    .leader-card-scorer:hover .goal-ball-node {
+      animation: ballStrikePop 0.8s cubic-bezier(0.22, 1, 0.36, 1) 0.15s 1 both;
+    }
+
+    .animate-leaders .goal-net-grid,
+    .leader-card-scorer:hover .goal-net-grid {
+      animation: netRipple 0.6s ease-out 0.65s 1 both;
+    }
+
+    .assist-pass-path {
+      stroke-dasharray: 110;
+      stroke-dashoffset: 110;
+    }
+
+    .animate-leaders .assist-pass-path,
+    .leader-card-assist:hover .assist-pass-path {
+      animation: drawTrajectory 0.85s ease-out 0.2s 1 forwards;
+    }
+
+    .animate-leaders .assist-target-ring,
+    .leader-card-assist:hover .assist-target-ring {
+      animation: targetLockIn 0.75s cubic-bezier(0.22, 1, 0.36, 1) 0.55s 1 both;
+    }
+
+    @keyframes cardSweep {
+      0% { transform: translateX(220%) skewX(-18deg); }
+      100% { transform: translateX(-260%) skewX(-18deg); }
+    }
+
+    @keyframes nameSlideIn {
+      0% { opacity: 0; transform: translateY(10px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes meterScaleIn {
+      0% { transform: scaleX(0); }
+      100% { transform: scaleX(1); }
+    }
+
+    @keyframes drawTrajectory {
+      to { stroke-dashoffset: 0; }
+    }
+
+    @keyframes ballStrikePop {
+      0% { opacity: 0; transform: translate(28px, 24px) scale(0.5); }
+      70% { opacity: 1; transform: translate(-2px, -2px) scale(1.15); }
+      100% { opacity: 1; transform: translate(0, 0) scale(1); }
+    }
+
+    @keyframes netRipple {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.06); }
+      100% { transform: scale(1); }
+    }
+
+    @keyframes targetLockIn {
+      0% { opacity: 0; transform: scale(0.4); }
+      70% { opacity: 1; transform: scale(1.18); }
+      100% { opacity: 1; transform: scale(1); }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+      .goal-arc-path,
+      .assist-pass-path {
+        stroke-dashoffset: 0 !important;
+      }
     }
 
     /* Section Headings */
@@ -1128,6 +1414,10 @@
         display: none;
       }
 
+      .leaders-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
       .groups-grid {
         grid-template-columns: repeat(2, 1fr);
       }
@@ -1230,18 +1520,109 @@
           </div>
         </div>
 
-        <div class="next-match-spotlight" aria-label="المباراة القادمة ونتيجة الافتتاح">
+        <div class="next-match-spotlight" aria-label="المباراة القادمة وآخر النتائج">
           <div class="spotlight-label">
-            <span>المباراة القادمة (المباراة 2)</span>
-            <span class="tabular">الخميس 12/11/2026</span>
+            <span>المباراة القادمة (المباراة 4)</span>
+            <span class="tabular">الاثنين 16/11/2026</span>
           </div>
           <div class="spotlight-teams">
-            <span>سابع 4</span>
+            <span>ثامن 2</span>
             <span class="vs-pill">ضد</span>
-            <span>سابع 2</span>
+            <span>سابع 6</span>
           </div>
-          <div class="section-subtitle">المجموعة أ · نتيجة الافتتاح: فوز ثامن 5 على تاسع 7 (2-0)</div>
+          <div class="section-subtitle">المجموعة ب · آخر النتائج: سابع 4 (1-0) سابع 2 | سابع 1 (3-0) سابع 7</div>
         </div>
+      </div>
+    </section>
+
+    <!-- لوحة نجوم الصدارة المتحركة: متصدر الهدّافين ومتصدر صنّاع الأهداف -->
+    <section class="leaders-showcase animate-leaders" id="leaders-showcase" aria-labelledby="leaders-showcase-title">
+      <div class="leaders-topbar">
+        <div>
+          <h2 class="section-title" id="leaders-showcase-title">نجوم الصدارة الآن</h2>
+          <span class="section-subtitle">تتحدث تلقائياً مع كل هدف وتمريرة حاسمة مسجلة في البطولة</span>
+        </div>
+        <button type="button" class="replay-motion-btn" id="replay-leaders-btn" aria-label="إعادة تحريك عرض المتصدرين">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true">
+            <polyline points="23 4 23 10 17 10"></polyline>
+            <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
+          </svg>
+          <span>إعادة عرض الحركة</span>
+        </button>
+      </div>
+
+      <div class="leaders-grid tabular">
+
+        <!-- بطاقة متصدر الهدّافين (الحذاء الذهبي) -->
+        <a href="#stats-section" class="leader-card leader-card-scorer" aria-label="متصدر الهدّافين الحالي: انتقل إلى جدول الهدافين">
+          <div>
+            <span class="leader-eyebrow leader-eyebrow-gold">متصدر الهدّافين · الحذاء الذهبي</span>
+            <span class="leader-player-name" id="top-scorer-name">يوسف ابو موسى</span>
+            <div class="leader-meta-row">
+              <span class="leader-team-chip" id="top-scorer-team">الصف: سابع 1</span>
+              <span class="leader-stat-pill-gold" id="top-scorer-count">2 أهداف</span>
+            </div>
+            <div class="leader-meter-track" aria-hidden="true">
+              <div class="leader-meter-fill leader-meter-fill-gold"></div>
+            </div>
+          </div>
+
+          <!-- رسم متحرك لتسديدة الهدف في الشباك -->
+          <div class="leader-stage-graphic" aria-hidden="true">
+            <svg width="88" height="70" viewBox="0 0 88 70" fill="none">
+              <!-- إطار المرمى والشباك -->
+              <g class="goal-net-grid">
+                <rect x="8" y="10" width="46" height="34" rx="2" stroke="#94A3B8" stroke-width="2" fill="rgba(15, 25, 51, 0.7)" />
+                <line x1="23" y1="10" x2="23" y2="44" stroke="#2A3F73" stroke-width="1" />
+                <line x1="38" y1="10" x2="38" y2="44" stroke="#2A3F73" stroke-width="1" />
+                <line x1="8" y1="21" x2="54" y2="21" stroke="#2A3F73" stroke-width="1" />
+                <line x1="8" y1="32" x2="54" y2="32" stroke="#2A3F73" stroke-width="1" />
+              </g>
+              <!-- مسار تسديدة الكرة نحو الزاوية العليا -->
+              <path class="goal-arc-path" d="M78 60 Q 58 18 22 20" stroke="#FBBF24" stroke-width="2.5" stroke-linecap="round" stroke-dasharray="4 3" fill="none" />
+              <!-- الكرة في الشباك -->
+              <g class="goal-ball-node" style="transform-origin: 22px 20px;">
+                <circle cx="22" cy="20" r="7" fill="#FBBF24" stroke="#0B132B" stroke-width="2" />
+                <circle cx="22" cy="20" r="2.5" fill="#0B132B" />
+              </g>
+            </svg>
+          </div>
+        </a>
+
+        <!-- بطاقة متصدر صنّاع الأهداف (صانع الألعاب) -->
+        <a href="#stats-section" class="leader-card leader-card-assist" aria-label="متصدر صنّاع الأهداف الحالي: انتقل إلى جدول التمريرات الحاسمة">
+          <div>
+            <span class="leader-eyebrow leader-eyebrow-green">متصدر صنّاع الأهداف · صانع الألعاب</span>
+            <span class="leader-player-name" id="top-assist-name">بسام</span>
+            <div class="leader-meta-row">
+              <span class="leader-team-chip" id="top-assist-team">الصف: سابع 1</span>
+              <span class="leader-stat-pill-green" id="top-assist-count">1 تمريرة حاسمة</span>
+            </div>
+            <div class="leader-meter-track" aria-hidden="true">
+              <div class="leader-meter-fill leader-meter-fill-green"></div>
+            </div>
+          </div>
+
+          <!-- رسم متحرك لمسار التمريرة الحاسمة (Through-Ball Pass) -->
+          <div class="leader-stage-graphic" aria-hidden="true">
+            <svg width="88" height="70" viewBox="0 0 88 70" fill="none">
+              <!-- خطوط الملعب التكتيكية -->
+              <rect x="6" y="8" width="76" height="54" rx="4" stroke="#2A3F73" stroke-width="1.5" fill="rgba(15, 25, 51, 0.7)" />
+              <line x1="44" y1="8" x2="44" y2="62" stroke="#2A3F73" stroke-width="1" />
+              <circle cx="44" cy="35" r="9" stroke="#2A3F73" stroke-width="1" />
+              <!-- نقطة صانع الألعاب -->
+              <circle cx="68" cy="48" r="4.5" fill="#94A3B8" />
+              <!-- خط التمريرة الحاسمة المخترقة -->
+              <path class="assist-pass-path" d="M68 48 C 50 48, 42 22, 20 22" stroke="#4ADE80" stroke-width="2.5" stroke-linecap="round" fill="none" />
+              <!-- نقطة الاستلام أمام المرمى -->
+              <g class="assist-target-ring" style="transform-origin: 20px 22px;">
+                <circle cx="20" cy="22" r="8" stroke="#4ADE80" stroke-width="2" fill="rgba(74, 222, 128, 0.2)" />
+                <circle cx="20" cy="22" r="3.5" fill="#4ADE80" />
+              </g>
+            </svg>
+          </div>
+        </a>
+
       </div>
     </section>
 
@@ -1286,17 +1667,17 @@
               <tr class="qualifies-row">
                 <td><span class="rank-badge">2</span></td>
                 <td class="col-team">سابع 4</td>
-                <td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td><strong>0</strong></td>
+                <td>1</td><td>1</td><td>0</td><td>0</td><td>1</td><td>0</td><td>+1</td><td><strong>3</strong></td>
               </tr>
               <tr>
                 <td><span class="rank-badge">3</span></td>
-                <td class="col-team">سابع 2</td>
+                <td class="col-team">تاسع 1</td>
                 <td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td><strong>0</strong></td>
               </tr>
               <tr>
                 <td><span class="rank-badge">4</span></td>
-                <td class="col-team">تاسع 1</td>
-                <td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td><strong>0</strong></td>
+                <td class="col-team">سابع 2</td>
+                <td>1</td><td>0</td><td>0</td><td>1</td><td>0</td><td>1</td><td>-1</td><td><strong>0</strong></td>
               </tr>
               <tr>
                 <td><span class="rank-badge">5</span></td>
@@ -1334,28 +1715,28 @@
             <tbody>
               <tr class="qualifies-row">
                 <td><span class="rank-badge">1</span></td>
-                <td class="col-team">سابع 7</td>
-                <td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td><strong>0</strong></td>
+                <td class="col-team">سابع 1</td>
+                <td>1</td><td>1</td><td>0</td><td>0</td><td>3</td><td>0</td><td>+3</td><td><strong>3</strong></td>
               </tr>
               <tr class="qualifies-row">
                 <td><span class="rank-badge">2</span></td>
-                <td class="col-team">سابع 1</td>
-                <td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td><strong>0</strong></td>
-              </tr>
-              <tr>
-                <td><span class="rank-badge">3</span></td>
                 <td class="col-team">ثامن 2</td>
                 <td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td><strong>0</strong></td>
               </tr>
               <tr>
-                <td><span class="rank-badge">4</span></td>
+                <td><span class="rank-badge">3</span></td>
                 <td class="col-team">سابع 6</td>
                 <td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td><strong>0</strong></td>
               </tr>
               <tr>
-                <td><span class="rank-badge">5</span></td>
+                <td><span class="rank-badge">4</span></td>
                 <td class="col-team">سابع 9</td>
                 <td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td><strong>0</strong></td>
+              </tr>
+              <tr>
+                <td><span class="rank-badge">5</span></td>
+                <td class="col-team">سابع 7</td>
+                <td>1</td><td>0</td><td>0</td><td>1</td><td>0</td><td>3</td><td>-3</td><td><strong>0</strong></td>
               </tr>
             </tbody>
           </table>
@@ -1523,14 +1904,14 @@
               <td class="cell-meta"><span>الخميس 12/11/2026</span><span class="group-badge">مجموعة أ · ج1</span></td>
               <td class="d-none-mobile"><span class="group-badge">المجموعة أ</span></td>
               <td class="cell-team1">سابع 4</td>
-              <td class="cell-score"><span class="match-score-cell">- : -</span></td>
+              <td class="cell-score"><span class="match-score-cell"><span>1</span><span>-</span><span>0</span></span></td>
               <td class="cell-team2">سابع 2</td>
             </tr>
             <tr data-group="ب" data-team1="سابع 7" data-team2="سابع 1">
               <td class="cell-meta"><span>الأحد 15/11/2026</span><span class="group-badge">مجموعة ب · ج1</span></td>
               <td class="d-none-mobile"><span class="group-badge">المجموعة ب</span></td>
               <td class="cell-team1">سابع 7</td>
-              <td class="cell-score"><span class="match-score-cell">- : -</span></td>
+              <td class="cell-score"><span class="match-score-cell"><span>0</span><span>-</span><span>3</span></span></td>
               <td class="cell-team2">سابع 1</td>
             </tr>
             <tr data-group="ب" data-team1="ثامن 2" data-team2="سابع 6">
@@ -1819,20 +2200,38 @@
                 <th scope="col" class="text-center">أهداف</th>
               </tr>
             </thead>
-            <tbody>
+            <tbody id="scorers-tbody">
               <!-- لإضافة لاعب بعد المباراة: انسخ السطر التالي وعدّل الاسم والصف وعدد الأهداف
               <tr><td>1</td><td>اسم الطالب</td><td>سابع 4</td><td class="text-center"><strong>1</strong></td></tr>
               -->
               <tr>
                 <td>1</td>
+                <td>يوسف ابو موسى</td>
+                <td>سابع 1</td>
+                <td class="text-center"><strong>2</strong></td>
+              </tr>
+              <tr>
+                <td>2</td>
                 <td>امجد ابو جعفر</td>
                 <td>ثامن 5</td>
                 <td class="text-center"><strong>1</strong></td>
               </tr>
               <tr>
-                <td>2</td>
+                <td>3</td>
                 <td>كنان العبرة</td>
                 <td>ثامن 5</td>
+                <td class="text-center"><strong>1</strong></td>
+              </tr>
+              <tr>
+                <td>4</td>
+                <td>محمد زياد</td>
+                <td>سابع 4</td>
+                <td class="text-center"><strong>1</strong></td>
+              </tr>
+              <tr>
+                <td>5</td>
+                <td>أميل ابو دعابس</td>
+                <td>سابع 1</td>
                 <td class="text-center"><strong>1</strong></td>
               </tr>
             </tbody>
@@ -1856,14 +2255,15 @@
                 <th scope="col" class="text-center">تمريرات حاسمة</th>
               </tr>
             </thead>
-            <tbody>
+            <tbody id="assists-tbody">
               <!-- لإضافة صانع أهداف: انسخ السطر التالي وعدّل الاسم والصف وعدد التمريرات
               <tr><td>1</td><td>اسم الطالب</td><td>تاسع 7</td><td class="text-center"><strong>1</strong></td></tr>
               -->
               <tr>
-                <td colspan="4" class="text-center" style="padding: 1.25rem; color: var(--text-secondary);">
-                  لم تسجل تمريرات حاسمة حتى الآن.
-                </td>
+                <td>1</td>
+                <td>بسام</td>
+                <td>سابع 1</td>
+                <td class="text-center"><strong>1</strong></td>
               </tr>
             </tbody>
           </table>
@@ -2655,6 +3055,72 @@
       }
 
       recalculateStandings();
+
+      // 4. مزامنة لوحة متصدر الهدافين ومتصدر صناع الأهداف تلقائياً من الجداول + زر إعادة الحركة
+      function extractTopLeader(tbodyId) {
+        var tbody = document.getElementById(tbodyId);
+        if (!tbody) return null;
+        var rows = tbody.querySelectorAll('tr');
+        var bestVal = -1;
+        var leaders = [];
+
+        for (var i = 0; i < rows.length; i++) {
+          var cells = rows[i].querySelectorAll('td');
+          if (cells.length < 4) continue;
+          var name = (cells[1].textContent || '').trim();
+          var team = (cells[2].textContent || '').trim();
+          var count = parseInt((cells[3].textContent || '').trim(), 10);
+          if (isNaN(count) || !name) continue;
+
+          if (count > bestVal) {
+            bestVal = count;
+            leaders = [{ name: name, team: team, count: count }];
+          } else if (count === bestVal) {
+            leaders.push({ name: name, team: team, count: count });
+          }
+        }
+
+        if (!leaders.length) return null;
+        return {
+          names: leaders.map(function (l) { return l.name; }).join(' ، '),
+          teams: leaders.map(function (l) { return l.team; }).filter(function (v, idx, a) { return a.indexOf(v) === idx; }).join(' / '),
+          count: bestVal
+        };
+      }
+
+      function syncLeadersSpotlight() {
+        var topScorer = extractTopLeader('scorers-tbody');
+        if (topScorer) {
+          var sName = document.getElementById('top-scorer-name');
+          var sTeam = document.getElementById('top-scorer-team');
+          var sCount = document.getElementById('top-scorer-count');
+          if (sName) sName.textContent = topScorer.names;
+          if (sTeam) sTeam.textContent = 'الصف: ' + topScorer.teams;
+          if (sCount) sCount.textContent = topScorer.count + (topScorer.count === 1 ? ' هدف' : (topScorer.count === 2 ? ' هدفان' : ' أهداف'));
+        }
+
+        var topAssist = extractTopLeader('assists-tbody');
+        if (topAssist) {
+          var aName = document.getElementById('top-assist-name');
+          var aTeam = document.getElementById('top-assist-team');
+          var aCount = document.getElementById('top-assist-count');
+          if (aName) aName.textContent = topAssist.names;
+          if (aTeam) aTeam.textContent = 'الصف: ' + topAssist.teams;
+          if (aCount) aCount.textContent = topAssist.count + (topAssist.count === 1 ? ' تمريرة حاسمة' : (topAssist.count === 2 ? ' تمريرتان حاسمتان' : ' تمريرات حاسمة'));
+        }
+      }
+
+      syncLeadersSpotlight();
+
+      var replayBtn = document.getElementById('replay-leaders-btn');
+      var showcaseEl = document.getElementById('leaders-showcase');
+      if (replayBtn && showcaseEl) {
+        replayBtn.addEventListener('click', function () {
+          showcaseEl.classList.remove('animate-leaders');
+          void showcaseEl.offsetWidth;
+          showcaseEl.classList.add('animate-leaders');
+        });
+      }
     })();
   </script>
 </body>

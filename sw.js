@@ -1,4 +1,4 @@
-const CACHE_NAME = 'alnoor-football-2026-v1';
+const CACHE_NAME = 'alnoor-football-2026-v4';
 const ASSETS = [
   './',
   './index.html',
