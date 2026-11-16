@@ -612,13 +612,11 @@
       padding: 2px 5px;
       text-align: center;
       font-family: 'Cairo', sans-serif;
-      font-size: 0.78rem;
+      font-size: 0.72rem;
       font-weight: 800;
-      line-height: 1.25;
+      line-height: 1.2;
       box-shadow: 0 4px 10px rgba(0, 0, 0, 0.65);
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
+      word-break: break-word;
     }
 
     .leader-card-assist .jersey-front-nameplate {
@@ -1504,15 +1502,15 @@
 
         <div class="next-match-spotlight" aria-label="المباراة القادمة وآخر النتائج">
           <div class="spotlight-label">
-            <span>المباراة القادمة (المباراة 4)</span>
-            <span class="tabular">الاثنين 16/11/2026</span>
+            <span>المباراة القادمة (المباراة 5)</span>
+            <span class="tabular">الثلاثاء 17/11/2026</span>
           </div>
           <div class="spotlight-teams">
-            <span>ثامن 2</span>
+            <span>ثامن 3</span>
             <span class="vs-pill">ضد</span>
-            <span>سابع 6</span>
+            <span>سابع 3</span>
           </div>
-          <div class="section-subtitle">المجموعة ب · آخر النتائج: سابع 4 (1-0) سابع 2 | سابع 1 (3-0) سابع 7</div>
+          <div class="section-subtitle">المجموعة ج · آخر النتائج: سابع 6 (1-0) ثامن 2 | سابع 1 (3-0) سابع 7</div>
         </div>
       </div>
     </section>
@@ -1642,9 +1640,9 @@
         <a href="#stats-section" class="leader-card leader-card-assist" aria-label="متصدر صنّاع الأهداف الحالي: انتقل إلى جدول التمريرات الحاسمة">
           <div>
             <span class="leader-eyebrow leader-eyebrow-green">متصدر صنّاع الأهداف · صانع الألعاب</span>
-            <span class="leader-player-name" id="top-assist-name">بسام</span>
+            <span class="leader-player-name" id="top-assist-name">بسام ، محمد هاني</span>
             <div class="leader-meta-row">
-              <span class="leader-team-chip" id="top-assist-team">الصف: سابع 1</span>
+              <span class="leader-team-chip" id="top-assist-team">الصف: سابع 1 / سابع 6</span>
               <span class="leader-stat-pill-green" id="top-assist-count">1 تمريرة حاسمة</span>
             </div>
             <div class="leader-meter-track" aria-hidden="true">
@@ -1724,7 +1722,7 @@
               <!-- صدر القميص الأمامي البارز ثلاثي الأبعاد وعليه اسم صانع الأهداف مباشرة -->
               <div class="jersey-front-chest-3d">
                 <span class="jersey-number-badge">10</span>
-                <div class="jersey-front-nameplate" id="assist-shirt-name">بسام</div>
+                <div class="jersey-front-nameplate" id="assist-shirt-name">بسام ، محمد هاني</div>
               </div>
 
               <!-- الكرة ثلاثية الأبعاد أمام حذاء صانع الألعاب -->
@@ -1838,18 +1836,18 @@
               </tr>
               <tr class="qualifies-row">
                 <td><span class="rank-badge">2</span></td>
-                <td class="col-team">ثامن 2</td>
-                <td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td><strong>0</strong></td>
+                <td class="col-team">سابع 6</td>
+                <td>1</td><td>1</td><td>0</td><td>0</td><td>1</td><td>0</td><td>+1</td><td><strong>3</strong></td>
               </tr>
               <tr>
                 <td><span class="rank-badge">3</span></td>
-                <td class="col-team">سابع 6</td>
+                <td class="col-team">سابع 9</td>
                 <td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td><strong>0</strong></td>
               </tr>
               <tr>
                 <td><span class="rank-badge">4</span></td>
-                <td class="col-team">سابع 9</td>
-                <td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td><strong>0</strong></td>
+                <td class="col-team">ثامن 2</td>
+                <td>1</td><td>0</td><td>0</td><td>1</td><td>0</td><td>1</td><td>-1</td><td><strong>0</strong></td>
               </tr>
               <tr>
                 <td><span class="rank-badge">5</span></td>
@@ -2036,7 +2034,7 @@
               <td class="cell-meta"><span>الاثنين 16/11/2026</span><span class="group-badge">مجموعة ب · ج1</span></td>
               <td class="d-none-mobile"><span class="group-badge">المجموعة ب</span></td>
               <td class="cell-team1">ثامن 2</td>
-              <td class="cell-score"><span class="match-score-cell">- : -</span></td>
+              <td class="cell-score"><span class="match-score-cell"><span>0</span><span>-</span><span>1</span></span></td>
               <td class="cell-team2">سابع 6</td>
             </tr>
             <tr data-group="ج" data-team1="ثامن 3" data-team2="سابع 3">
@@ -2352,6 +2350,12 @@
                 <td>سابع 1</td>
                 <td class="text-center"><strong>1</strong></td>
               </tr>
+              <tr>
+                <td>6</td>
+                <td>اردوغان العبرة</td>
+                <td>سابع 6</td>
+                <td class="text-center"><strong>1</strong></td>
+              </tr>
             </tbody>
           </table>
         </article>
@@ -2381,6 +2385,12 @@
                 <td>1</td>
                 <td>بسام</td>
                 <td>سابع 1</td>
+                <td class="text-center"><strong>1</strong></td>
+              </tr>
+              <tr>
+                <td>2</td>
+                <td>محمد هاني</td>
+                <td>سابع 6</td>
                 <td class="text-center"><strong>1</strong></td>
               </tr>
             </tbody>
