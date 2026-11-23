@@ -1058,6 +1058,70 @@
       color: var(--text-secondary);
     }
 
+    .schedule-table tbody tr.is-next-match {
+      background-color: rgba(251, 191, 36, 0.08);
+    }
+
+    .next-match-tag {
+      display: inline-block;
+      padding: 0.12rem 0.5rem;
+      border-radius: 999px;
+      background-color: var(--accent-gold);
+      color: var(--accent-gold-text);
+      font-size: 0.74rem;
+      font-weight: 800;
+      margin-right: 0.35rem;
+    }
+
+    .schedule-more-bar {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 0.6rem;
+      padding: 1.1rem 1.25rem;
+      background-color: var(--bg-subtle);
+      border-top: 1px solid var(--border-color);
+      text-align: center;
+    }
+
+    .schedule-more-bar[hidden] {
+      display: none;
+    }
+
+    .schedule-more-status {
+      font-size: 0.88rem;
+      color: var(--text-secondary);
+      font-weight: 600;
+    }
+
+    .schedule-more-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      min-height: 44px;
+      padding: 0.55rem 1.35rem;
+      border-radius: 8px;
+      border: 1px solid var(--accent-gold);
+      background-color: var(--bg-elevated);
+      color: var(--accent-gold);
+      font-family: inherit;
+      font-size: 0.94rem;
+      font-weight: 800;
+      cursor: pointer;
+      transition: background-color 0.15s ease, color 0.15s ease, transform 0.15s ease;
+    }
+
+    .schedule-more-btn:hover {
+      background-color: var(--accent-gold);
+      color: var(--accent-gold-text);
+    }
+
+    .schedule-more-btn[aria-expanded="true"] svg {
+      transform: rotate(180deg);
+    }
+
     .reset-btn {
       margin-top: 0.75rem;
       min-height: 44px;
@@ -2272,6 +2336,17 @@
           </tbody>
         </table>
 
+        <!-- شريط عرض المزيد من المباريات (يعرض افتراضياً آخر 5 مباريات والمباراة القادمة فقط) -->
+        <div class="schedule-more-bar" id="schedule-more-bar">
+          <span class="schedule-more-status" id="schedule-more-status">يُعرض حالياً آخر 5 مباريات لُعبت والمباراة القادمة فقط (6 من 36 مباراة)</span>
+          <button type="button" class="schedule-more-btn" id="toggle-schedule-btn" aria-expanded="false">
+            <span id="toggle-schedule-text">عرض المزيد (باقي المباريات)</span>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true">
+              <polyline points="6 9 12 15 18 9"></polyline>
+            </svg>
+          </button>
+        </div>
+
         <!-- حالات الواجهة: التحميل، الخطأ، وعدم وجود نتائج (R-27) -->
         <div class="empty-state-box" id="schedule-loading-state" role="status" aria-live="polite" hidden>
           <p>جاري تحديث جدول المباريات وحساب نقاط المجموعات...</p>
@@ -3060,22 +3135,52 @@
         });
       });
 
-      // 2. تصفية جدول المباريات حسب المجموعة والبحث عن الصف (R-26, R-27)
+      // 2. تصفية جدول المباريات حسب المجموعة والبحث عن الصف + العرض المختصر (آخر 5 مباريات والمباراة القادمة) (R-26, R-27)
       var filterButtons = document.querySelectorAll('[data-filter-group]');
       var searchInput = document.getElementById('team-search-input');
       var matchRows = document.querySelectorAll('#matches-tbody tr');
       var emptyState = document.getElementById('schedule-empty-state');
       var matchesTable = document.getElementById('matches-table');
       var resetBtn = document.getElementById('reset-filters-btn');
+      var moreBar = document.getElementById('schedule-more-bar');
+      var moreStatus = document.getElementById('schedule-more-status');
+      var toggleScheduleBtn = document.getElementById('toggle-schedule-btn');
+      var toggleScheduleText = document.getElementById('toggle-schedule-text');
       var activeGroup = 'all';
+      var isScheduleExpanded = false;
 
       function normalizeArabic(text) {
         return (text || '').trim().replace(/\s+/g, ' ');
       }
 
+      function isRowPlayed(row) {
+        var scoreCell = row.querySelector('.cell-score');
+        var scoreText = scoreCell ? (scoreCell.textContent || '').trim() : '';
+        return /\d+\s*[-:]\s*\d+/.test(scoreText);
+      }
+
+      // تمييز المباراة القادمة في الجدول بشارة واضحة
+      (function markNextUpcomingMatch() {
+        for (var i = 0; i < matchRows.length; i++) {
+          if (!isRowPlayed(matchRows[i])) {
+            matchRows[i].classList.add('is-next-match');
+            var metaCell = matchRows[i].querySelector('.cell-meta');
+            if (metaCell && !metaCell.querySelector('.next-match-tag')) {
+              var tag = document.createElement('span');
+              tag.className = 'next-match-tag';
+              tag.textContent = 'المباراة القادمة';
+              metaCell.appendChild(tag);
+            }
+            break;
+          }
+        }
+      })();
+
       function filterMatches() {
         var query = normalizeArabic(searchInput ? searchInput.value : '');
-        var visibleCount = 0;
+        var matchedRows = [];
+        var playedMatched = [];
+        var unplayedMatched = [];
 
         for (var i = 0; i < matchRows.length; i++) {
           var row = matchRows[i];
@@ -3088,15 +3193,56 @@
           var matchesQuery = !query || t1.indexOf(query) !== -1 || t2.indexOf(query) !== -1 || dateText.indexOf(query) !== -1;
 
           if (matchesGroup && matchesQuery) {
-            row.style.display = '';
-            visibleCount++;
+            matchedRows.push(row);
+            if (isRowPlayed(row)) {
+              playedMatched.push(row);
+            } else {
+              unplayedMatched.push(row);
+            }
           } else {
             row.style.display = 'none';
           }
         }
 
+        var rowsToShow = matchedRows;
+        var isCompactActive = !isScheduleExpanded && !query;
+
+        if (isCompactActive) {
+          var lastFivePlayed = playedMatched.slice(-5);
+          var nextUpcoming = unplayedMatched.slice(0, 1);
+          rowsToShow = lastFivePlayed.concat(nextUpcoming);
+        }
+
+        for (var k = 0; k < matchedRows.length; k++) {
+          if (rowsToShow.indexOf(matchedRows[k]) !== -1) {
+            matchedRows[k].style.display = '';
+          } else {
+            matchedRows[k].style.display = 'none';
+          }
+        }
+
+        if (moreBar && moreStatus && toggleScheduleBtn && toggleScheduleText) {
+          var hiddenCount = matchedRows.length - rowsToShow.length;
+          if (!query && matchedRows.length > 6 && (isCompactActive && hiddenCount > 0 || isScheduleExpanded)) {
+            moreBar.hidden = false;
+            if (!isScheduleExpanded) {
+              var shownPlayedCount = playedMatched.slice(-5).length;
+              var hasNext = unplayedMatched.length > 0;
+              moreStatus.textContent = 'يُعرض حالياً آخر ' + shownPlayedCount + ' مباريات لُعبت' + (hasNext ? ' والمباراة القادمة فقط' : '') + ' (' + rowsToShow.length + ' من ' + matchedRows.length + ' مباراة)';
+              toggleScheduleText.textContent = 'عرض المزيد (باقي المباريات: ' + hiddenCount + ')';
+              toggleScheduleBtn.setAttribute('aria-expanded', 'false');
+            } else {
+              moreStatus.textContent = 'يُعرض حالياً جدول المباريات الكامل (' + matchedRows.length + ' مباراة)';
+              toggleScheduleText.textContent = 'عرض مختصر (آخر 5 مباريات والمباراة القادمة فقط)';
+              toggleScheduleBtn.setAttribute('aria-expanded', 'true');
+            }
+          } else {
+            moreBar.hidden = true;
+          }
+        }
+
         if (emptyState && matchesTable) {
-          if (visibleCount === 0) {
+          if (matchedRows.length === 0) {
             emptyState.hidden = false;
             matchesTable.style.display = 'none';
           } else {
@@ -3105,6 +3251,15 @@
           }
         }
       }
+
+      if (toggleScheduleBtn) {
+        toggleScheduleBtn.addEventListener('click', function () {
+          isScheduleExpanded = !isScheduleExpanded;
+          filterMatches();
+        });
+      }
+
+      filterMatches();
 
       for (var b = 0; b < filterButtons.length; b++) {
         filterButtons[b].addEventListener('click', function () {
