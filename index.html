@@ -2469,6 +2469,15 @@
               </tr>
             </tbody>
           </table>
+          <div class="schedule-more-bar" id="scorers-more-bar">
+            <span class="schedule-more-status" id="scorers-more-status">يُعرض حالياً أول 5 هدّافين (5 من 12 لاعباً)</span>
+            <button type="button" class="schedule-more-btn" id="toggle-scorers-btn" aria-expanded="false">
+              <span id="toggle-scorers-text">عرض المزيد (باقي الهدّافين: 7)</span>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true">
+                <polyline points="6 9 12 15 18 9"></polyline>
+              </svg>
+            </button>
+          </div>
         </article>
 
         <!-- صنّاع الأهداف (التمريرات الحاسمة) -->
@@ -2530,6 +2539,15 @@
               </tr>
             </tbody>
           </table>
+          <div class="schedule-more-bar" id="assists-more-bar">
+            <span class="schedule-more-status" id="assists-more-status">يُعرض حالياً أول 5 صنّاع أهداف (5 من 6 لاعبين)</span>
+            <button type="button" class="schedule-more-btn" id="toggle-assists-btn" aria-expanded="false">
+              <span id="toggle-assists-text">عرض المزيد (باقي صنّاع الأهداف: 1)</span>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true">
+                <polyline points="6 9 12 15 18 9"></polyline>
+              </svg>
+            </button>
+          </div>
         </article>
 
         <!-- البطاقات الصفراء -->
@@ -3459,6 +3477,56 @@
       }
 
       syncLeadersSpotlight();
+
+      // 5. عرض أول 5 لاعبين فقط في جدول الهدّافين وجدول صنّاع الأهداف مع زر "عرض المزيد"
+      function setupTopFiveStatTable(tbodyId, barId, statusId, btnId, textId, categoryLabel) {
+        var tbody = document.getElementById(tbodyId);
+        var bar = document.getElementById(barId);
+        var statusEl = document.getElementById(statusId);
+        var btn = document.getElementById(btnId);
+        var textEl = document.getElementById(textId);
+        if (!tbody || !bar || !statusEl || !btn || !textEl) return;
+
+        var rows = tbody.querySelectorAll('tr');
+        var isExpanded = false;
+
+        function renderStatRows() {
+          var total = rows.length;
+          if (total <= 5) {
+            bar.hidden = true;
+            for (var i = 0; i < total; i++) {
+              rows[i].style.display = '';
+            }
+            return;
+          }
+
+          bar.hidden = false;
+          for (var j = 0; j < total; j++) {
+            rows[j].style.display = (isExpanded || j < 5) ? '' : 'none';
+          }
+
+          var remaining = total - 5;
+          if (!isExpanded) {
+            statusEl.textContent = 'يُعرض حالياً أول 5 من ' + categoryLabel + ' (5 من ' + total + ')';
+            textEl.textContent = 'عرض المزيد (الباقي: ' + remaining + ')';
+            btn.setAttribute('aria-expanded', 'false');
+          } else {
+            statusEl.textContent = 'يُعرض حالياً القائمة الكاملة (' + total + ')';
+            textEl.textContent = 'عرض مختصر (أول 5 فقط)';
+            btn.setAttribute('aria-expanded', 'true');
+          }
+        }
+
+        btn.addEventListener('click', function () {
+          isExpanded = !isExpanded;
+          renderStatRows();
+        });
+
+        renderStatRows();
+      }
+
+      setupTopFiveStatTable('scorers-tbody', 'scorers-more-bar', 'scorers-more-status', 'toggle-scorers-btn', 'toggle-scorers-text', 'الهدّافين');
+      setupTopFiveStatTable('assists-tbody', 'assists-more-bar', 'assists-more-status', 'toggle-assists-btn', 'toggle-assists-text', 'صنّاع الأهداف');
 
       // تفاعل دوران ثلاثي الأبعاد عند تحريك المؤشر أو اللمس على بطاقة اللاعب 3D
       var leaderCards = document.querySelectorAll('.leader-card');
